@@ -51,6 +51,7 @@
 
    <worldbody>
       <body name="pelvis" pos="0 0 1" quat="0.707107 0.707107 0 0" childclass="myolegs">>
+        <site name ="pelvislocation" pos="0 0 0"/>
         <site name="pelvis" class="myo_leg_marker"/>
         <inertial pos="-0.07 -0.03 0" mass="10.96" diaginertia="0.0622075 0.0532711 0.0299242" />
         <freejoint name="mroot"/>
@@ -144,6 +145,7 @@
         <site name="IL_at_brim_r_site_iliacus_r_side" pos="-0.02526034 -0.0256276 0.0928915"/>
         <site name="IL_at_brim_l_site_iliacus_l_side" pos="-0.00526034 -0.0756276 -0.0828915"/>
         <body name="femur_r" pos="-0.056276 -0.07849 0.07726">
+            <site name ="hip_r_location" pos="0 0 0"/>
             <site name="hip_r" class="myo_leg_marker"/>
             <inertial pos="0 -0.195 -0.0005" quat="0.708013 -0.7062 0 0" mass="8.4" diaginertia="0.1694 0.1694 0.0245269" />
             <joint axis="0 0 1" name="hip_flexion_r" pos="0 0 0" range="-0.523599 2.0944"/>
@@ -213,6 +215,7 @@
             <site name="AMdist_at_femshaft_r_site_addmagDist_r_side" pos="0.0146959 -0.298529 0.0158276"/>
             <site name="AMisch_at_condyles_r_site_addmagIsch_r_side" pos="-0.0360341 -0.49032 -0.0446456"/>
             <body name="tibia_r" pos="-4.6e-07 -0.404425 -0.00126526">
+                <site name="knee_r_location" pos="0 0 0"/>
                 <site name="knee_r" class="myo_leg_marker"/>
                 <inertial pos="-0.005 -0.175 0.0025" quat="0.70204 -0.711847 0.0203385 0" mass="3.8" diaginertia="0.0771589 0.0771589 0.00690387" />
                 <joint axis="0.992246 0.123982 -0.00878916" name="knee_angle_r_translation2" pos="0 0 0" range="7.69254e-11 0.006792" type="slide"/>
@@ -281,6 +284,7 @@
                 <site name="ST_at_condyles_r_site_semiten_r_side" pos="-0.0428471 -0.0468901 -0.0181631"/>
                 <site name="BF_at_gastroc_r_site_bfsh_r_side" pos="-0.0687049 -0.0256284 0.0426731"/>
                 <body name="talus_r" pos="-0.01 -0.4 0">
+                    <site name ="ankle_r_location" pos ="0 0 0"/>
                     <site name="ankle_r" class="myo_leg_marker"/>
                     <joint axis="-0.105014 -0.174022 0.979126" name="ankle_angle_r" pos="0 0 0" range="-0.698132 0.523599"/>
                     <geom mesh="r_talus" name="r_talus" type="mesh"/>
@@ -322,6 +326,7 @@
                         <site name="r_foot_touch" type="box" pos="0.09 -.01 0.0" size=".1 .01 .055" euler="0 0 0" class="myo_leg_touch"/>
 
                         <body name="toes_r" pos="0.1788 -0.002 0.00108">
+                            <site name= "toe_r_location" pos ="0 0 0"/>
                             <site name="toe_r" class="myo_leg_marker"/>
                             <joint axis="0.580954 0 -0.813936" name="mtp_angle_r" pos="0 0 0" range="-0.523599 0.523599"/>
                             <!-- <geom name="r_bofoot_col1" size=".0175 .045" class="coll" zaxis="0.880954 0 -0.813936" pos="0.04 0 .01"/> -->
@@ -358,6 +363,7 @@
             </body>
         </body>
         <body name="femur_l" pos="-0.056276 -0.07849 -0.07726">
+            <site name ="hip_l_location" pos ="0 0 0"/>
             <site name="hip_l" class="myo_leg_marker"/>
             <inertial pos="0 -0.195 0.0005" quat="0.7062 -0.708013 0 0" mass="8.4" diaginertia="0.1694 0.1694 0.0245269" />
             <joint axis="0 0 1" name="hip_flexion_l" pos="0 0 0" range="-0.523599 2.0944"/>
@@ -427,6 +433,7 @@
             <site name="AMdist_at_femshaft_l_site_addmagDist_l_side" pos="0.0146959 -0.298529 -0.0158276"/>
             <site name="AMisch_at_condyles_l_site_addmagIsch_l_side" pos="-0.0360341 -0.49032 0.0446456"/>
             <body name="tibia_l" pos="-4.6e-07 -0.404425 0.00126526">
+                <site name ="knee_l_location" pos="0 0 0"/>
                 <site name="knee_l" class="myo_leg_marker"/>
                 <inertial pos="-0.005 -0.175 -0.0025" quat="0.712137 -0.701754 0.0200501 0" mass="3.8" diaginertia="0.0771589 0.0771589 0.00690387" />
                 <joint axis="-0.992246 -0.123982 -0.00878916" name="knee_angle_l_translation2" pos="0 0 0" range="-0.006792 -7.69254e-11" type="slide"/>
@@ -495,6 +502,7 @@
                 <site name="ST_at_condyles_l_site_semiten_l_side" pos="-0.0428471 -0.0468901 0.0181631"/>
                 <site name="BF_at_gastroc_l_site_bfsh_l_side" pos="-0.0687049 -0.0256284 -0.0426731"/>
                 <body name="talus_l" pos="-0.01 -0.4 0">
+                    <site name ="ankle_l_location" pos="0 0 0"/>
                     <site name="ankle_l" class="myo_leg_marker"/>
                     <joint axis="0.105014 0.174022 0.979126" name="ankle_angle_l" pos="0 0 0" range="-0.698132 0.523599"/>
                     <geom mesh="l_talus" name="l_talus" type="mesh"/>
@@ -536,6 +544,7 @@
                         <site name="l_foot_touch" type="box" pos="0.09 -.01 0.0" size=".1 .01 .055" euler="0 0 0" class="myo_leg_touch"/>
 
                         <body name="toes_l" pos="0.1788 -0.002 -0.00108">
+                            <site name ="toe_l_location" pos="0 0 0"/>
                             <site name="toe_l" class="myo_leg_marker"/>
                             <joint axis="-0.580954 0 -0.813936" name="mtp_angle_l" pos="0 0 0" range="-0.523599 0.523599"/>
                             <!-- <geom name="l_bofoot_col1" size=".0175 .045" class="coll" zaxis="-0.880954 0 -0.813936" pos="0.04 0 -.01"/> -->
@@ -582,7 +591,7 @@
          <site name ="pelvissite" pos ="0 0 0"/>
          <inertial diaginertia="8.0012      8.2603     0.55024" mass="51.1774"
                    pos="-0.058503 -3.5387e-05     0.28026"/>
-         <geom conaffinity="0" contype="0" density="0" group="1" mesh="PelvisLink" type="mesh"/>
+         <geom conaffinity="0" contype="0" density="0" group="1" mesh="PelvisLink" type="mesh" name="pelvismesh"/>
          <!-- <freejoint name="root"/> -->
          <site group="3" name="pelvis_imu" pos="-0.16445   -0.014625     0.19109"
                quat="0.5        -0.5        -0.5         0.5"
@@ -619,7 +628,7 @@
                                quat="0.942179 -0.149291 0.11288 -0.277974"/>
                      <joint axis="0 1 0" name="LeftSagittalKneeJoint" pos="0 0 0" range="0 1.9"/>
                      <geom conaffinity="0" contype="0" density="0" group="1" mesh="LeftSagittalKneeLink"
-                           type="mesh"/>
+                           type="mesh" name="leftkneemesh"/>
                      <site group="3" name="left_tibia_imu" pos="-0.14067   -0.074092    -0.39348"
                            quat="2.3108e-07 -2.3108e-07     0.70711    -0.70711"
                            size=".01"/>
@@ -641,7 +650,7 @@
                                   range="-0.3 0.3"/>
                            <geom conaffinity="0" contype="0" density="0" group="1" mesh="LeftHenkeAnkleLink"
                                  quat="0.945518 0 -0.32557 0"
-                                 type="mesh"/>
+                                 type="mesh" name="leftfootmesh"/>
                            <geom condim="3" friction="1 0.1 0.001" name="left_sole" pos="0.06 -3.3e-05 -0.15975"
                                  contype="1"
                                  conaffinity="0"
@@ -703,7 +712,7 @@
                             quat="0.838225 0.0146821 -0.0185674 0.544811"/>
                   <joint axis="0 1 0" name="RightSagittalHipJoint" pos="0 0 0" range="-2 0.3"/>
                   <geom conaffinity="0" contype="0" density="0" group="1" mesh="RightSagittalHipLink"
-                        type="mesh"/>
+                        type="mesh" name ="righthipmesh"/>
                   <body name="RightSagittalKneeLink" pos="0 -0.0049114 -0.38">
                      <site name = "RightSagittalKneeSite" pos="0 0 0"/>
                      <inertial diaginertia="0.429747 0.388534 0.104179" mass="13.3561"
@@ -711,7 +720,7 @@
                                quat="0.942179 0.149291 0.11288 0.277974"/>
                      <joint axis="0 1 0" name="RightSagittalKneeJoint" pos="0 0 0" range="0 1.9"/>
                      <geom conaffinity="0" contype="0" density="0" group="1" mesh="RightSagittalKneeLink"
-                           type="mesh"/>
+                           type="mesh" name ="rightkneemesh"/>
             
                      <site group="3" name="right_tibia_imu" pos="-0.11573    0.074342    -0.39348"
                            quat="0.70711    -0.70711           0           0"
@@ -734,7 +743,7 @@
                                   range="-0.3 0.3"/>
                            <geom conaffinity="0" contype="0" density="0" group="1" mesh="RightHenkeAnkleLink"
                                  quat="0.945518 0 -0.32557 0"
-                                 type="mesh"/>
+                                 type="mesh" name="rightfootmesh"/>
                            <geom condim="3" friction="1 0.1 0.001" name="right_sole" pos="0.06 -3.3e-05 -0.15975"
                                  contype="2"  
                                  conaffinity="0" 
@@ -778,7 +787,65 @@
       </body>
    </worldbody>
 
+    <contact>
+        <!-- <pair condim="3" friction="1 1 0.005 0.0001 0.0001" geom1="r_femur" geom2="righthipmesh" margin="0.0001"
+           /> -->
+        <pair geom1="ST_at_condyles_r_wrap" geom2="rightkneemesh" margin="0.0001"
+           />
+        <pair geom1="ST_at_condyles_l_wrap" geom2="rightkneemesh" margin="0.0001"
+           />
+        <pair geom1="l_foot" geom2="leftfootmesh" margin="0.0001"
+           />
+        <pair geom1="r_foot" geom2="rightfootmesh" margin="0.0001"
+           />
+    </contact>
+
     <tendon>
+        <spatial name= "pelvisconnect" springlength= "0.00000001">
+            <site site ="pelvislocation"/>
+            <site site ="pelvissite"/>
+        </spatial>
+
+        <spatial name= "righthipconnect" springlength= "0.00000001">
+            <site site ="hip_r_location"/>
+            <site site ="RightSagittalHipSite"/>
+        </spatial>
+
+        <spatial name= "rightkneeconnect" springlength= "0.00000001">
+            <site site ="knee_r_location"/>
+            <site site ="RightSagittalKneeSite"/>
+        </spatial>
+
+        <spatial name= "rightankleconnect" springlength= "0.000001">
+            <site site ="ankle_r_location"/>
+            <site site ="RightHenkeAnkleSite"/>
+        </spatial>
+
+        <spatial name= "righttoeconnect" springlength= "0.00000001">
+            <site site ="toe_r_location"/>
+            <site site ="right_foot_imu"/>
+        </spatial>
+
+         <spatial name= "lefthipconnect" springlength= "0.0000001">
+            <site site ="hip_r_location"/>
+            <site site ="LeftSagittalHipSite"/>
+        </spatial>
+
+        <spatial name= "leftkneeconnect" springlength= "0.0000001">
+            <site site ="knee_l_location"/>
+            <site site ="LeftSagittalKneeSite"/>
+        </spatial>
+
+        <spatial name= "leftankleconnect" springlength= "0.000001">
+            <site site ="ankle_l_location"/>
+            <site site ="LeftHenkeAnkleSite"/>
+        </spatial>
+
+        <spatial name= "lefttoeconnect" springlength= "0.000001">
+            <site site ="toe_l_location"/>
+            <site site ="left_foot_imu"/>
+        </spatial>
+
         <spatial name="addbrev_r_tendon" springlength="0.0354503">
             <site site="addbrev_r-P1"/>
             <site site ="pelvissite"/>
@@ -819,15 +886,14 @@
             <site site="bflh_r-P1"/>
             <site site="bflh_r-P2"/>
             <site site="bflh_r-P3"/>
-            <!-- <site site = "RightSagittalKneeSite"/> -->
+            <site site = "RightSagittalKneeSite"/>
 
         </spatial>
         <spatial name="bfsh_r_tendon" springlength="0.105817">
             <site site="bfsh_r-P1"/>
             <!-- <geom geom="BF_at_gastroc_r_wrap" sidesite="BF_at_gastroc_r_site_bfsh_r_side"/> -->
             <site site="bfsh_r-P2"/>
-            <site site = "RightSagittalKneeSite"/>
-    
+            <!-- <site site = "RightSagittalKneeSite"/> -->
 
         </spatial>
         <spatial name="edl_r_tendon" springlength="0.368875">
@@ -859,8 +925,6 @@
             <site site="fdl_r-P7"/>
             <site site="fdl_r-P8"/>
             <site site ="RightHenkeAnkleSite"/>
-
-
         </spatial>
         <spatial name="fhl_r_tendon" springlength="0.35434">
             <site site="fhl_r-P1"/>
@@ -870,6 +934,8 @@
             <site site="fhl_r-P5"/>
             <site site="fhl_r-P6"/>
             <site site="fhl_r-P7"/>
+            <site site ="RightHenkeAnkleSite"/>
+    
         </spatial>
         <spatial name="gaslat_r_tendon" springlength="0.37607">
             <site site="gaslat_r-P1"/>
@@ -1119,6 +1185,8 @@
             <site site="fhl_l-P5"/>
             <site site="fhl_l-P6"/>
             <site site="fhl_l-P7"/>
+            <site site ="LeftHenkeAnkleSite"/>
+
         </spatial>
         <spatial name="gaslat_l_tendon" springlength="0.37607">
             <site site="gaslat_l-P1"/>
