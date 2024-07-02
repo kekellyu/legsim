@@ -856,31 +856,31 @@
         </spatial>
         <spatial name="addlong_r_tendon" springlength="0.131799">
             <site site="addlong_r-P1"/>
-            <site site ="pelvissite"/>
+            <!-- <site site ="pelvissite"/> -->
             <!-- <geom geom="AL_at_femshaft_r_wrap" sidesite="AL_at_femshaft_r_site_addlong_r_side"/> -->
             <site site="addlong_r-P2"/>
         </spatial>
         <spatial name="addmagDist_r_tendon" springlength="0.0873807">
             <site site="addmagDist_r-P1"/>
-            <site site ="pelvissite"/>
+            <!-- <site site ="pelvissite"/> -->
             <!-- <geom geom="AMdist_at_femshaft_r_wrap" sidesite="AMdist_at_femshaft_r_site_addmagDist_r_side"/> -->
             <site site="addmagDist_r-P2"/>
         </spatial>
         <spatial name="addmagIsch_r_tendon" springlength="0.216343">
             <site site="addmagIsch_r-P1"/>
-            <site site ="pelvissite"/>
+            <!-- <site site ="pelvissite"/> -->
             <!-- <geom geom="AMisch_at_condyles_r_wrap" sidesite="AMisch_at_condyles_r_site_addmagIsch_r_side"/> -->
             <site site="addmagIsch_r-P2"/>
         </spatial>
         <spatial name="addmagMid_r_tendon" springlength="0.0466277">
             <site site="addmagMid_r-P1"/>
-            <site site ="pelvissite"/>
+            <!-- <site site ="pelvissite"/> -->
             <!-- <geom geom="AMmid_at_femshaft_r_wrap" sidesite="AMmid_at_femshaft_r_site_addmagMid_r_side"/> -->
             <site site="addmagMid_r-P2"/>
         </spatial>
         <spatial name="addmagProx_r_tendon" springlength="0.0403241">
             <site site="addmagProx_r-P1"/>
-            <site site ="pelvissite"/>
+            <!-- <site site ="pelvissite"/> -->
             <!-- <geom geom="AMprox_at_femshaft_r_wrap" sidesite="AMprox_at_femshaft_r_site_addmagProx_r_side"/> -->
             <site site="addmagProx_r-P2"/>
         </spatial>
@@ -895,7 +895,7 @@
             <site site="bfsh_r-P1"/>
             <!-- <geom geom="BF_at_gastroc_r_wrap" sidesite="BF_at_gastroc_r_site_bfsh_r_side"/> -->
             <site site="bfsh_r-P2"/>
-            <!-- <site site = "RightSagittalKneeSite"/> -->
+            <site site = "RightSagittalKneeSite"/>
 
         </spatial>
         <spatial name="edl_r_tendon" springlength="0.368875">
