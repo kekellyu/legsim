@@ -49,6 +49,7 @@
       <hfield name="terrain" size="7 7 1 0.001" nrow="100" ncol="100"/>   
    </asset>
 
+
    <worldbody>
       <body name="pelvis" pos="0 0 1" quat="0.707107 0.707107 0 0" childclass="myolegs">>
         <site name ="pelvislocation" pos="0 0 0"/>
@@ -607,6 +608,7 @@
             <geom conaffinity="0" contype="0" density="0" group="1" mesh="LeftFrontalHipLink"
                   type="mesh"/>
             <body name="LeftTransverseHipLink" pos="-0.135 0.169 0">
+               <site name ="LeftTransverseHipSite" pos="0 0 0"/>
                <inertial diaginertia="0.0259937 0.0259386 0.00622165" mass="4.4176"
                          pos="0.069171 -0.008671 0.004224"
                          quat="-0.114265 0.696606 -0.205723 0.677762"/>
