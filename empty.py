@@ -1,24 +1,35 @@
 import xml.etree.ElementTree as ET
 import math
 
-def angle2quat(yaw, pitch, roll):
-    cy = np.cos(yaw * 0.5)
-    sy = np.sin(yaw * 0.5)
-    cp = np.cos(pitch * 0.5)
-    sp = np.sin(pitch * 0.5)
-    cr = np.cos(roll * 0.5)
-    sr = np.sin(roll * 0.5)
+def load_xml_file_to_tree(xml_file):
+    try:
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
+        return tree, root
+    except ET.ParseError as e:
+        print(f"Error parsing XML file: {e}")
+        return None, None
+    except FileNotFoundError:
+        print("The specified XML file was not found.")
+        return None, None
 
-    qw = cr * cp * cy + sr * sp * sy
-    qx = sr * cp * cy - cr * sp * sy
-    qy = cr * sp * cy + sr * cp * sy
-    qz = cr * cp * sy - sr * sp * cy
+def get_elements(root, tag):
+    return [element for element in root.iter(tag)]
 
-    return [qx, qy, qz, qw]
+def mod_mujoco_xml(obj, mujocoXMLfile, mesh_dir, whichloaded,emptyXMLfile):
+    tree, root = load_xml_file_to_tree(mujocoXMLfile)
+    if root is None:
+        return
 
-def mod_mujoco_xml(mujocoXMLfile, mesh_dir, whichloaded):
-    tree = ET.parse(mujocoXMLfile)
-    root = tree.getroot()
+    # Load from the empty.xml file
+    empty_tree, empty_root = load_xml_file_to_tree(emptyXMLfile)
+    if empty_root is None:
+        return
+
+    actuators = get_elements(empty_root, 'general')
+    tendons = get_elements(empty_root, 'spatial')
+    sites = get_elements(empty_root, 'site')
+    equality_elements = get_elements(empty_root, 'equality')
 
     # IMU positions and orientations
     pelvis_rpy = [-1.570796, 0.0, 1.570796]
@@ -49,6 +60,82 @@ def mod_mujoco_xml(mujocoXMLfile, mesh_dir, whichloaded):
     eq_param_node = ET.SubElement(default_node, 'equality')
     eq_param_node.set('solref', '0.02 1')
     eq_param_node.set('solimp', '0.9 0.95 0.001 0.4 2')
+    default_class_node = ET
+
+    # Create the myoleg default node
+    default_myolegs = ET.SubElement(root, 'default')
+    default_myolegs.set('class', 'myolegs')
+
+    # Add joint element
+    joint_node = ET.SubElement(default_myolegs, 'joint')
+    joint_node.set('armature', '0.01')
+    joint_node.set('damping', '0.5')
+    joint_node.set('limited', 'true')
+
+    # Add geom element
+    geom_node = ET.SubElement(default_myolegs, 'geom')
+    geom_node.set('margin', '0.001')
+    geom_node.set('material', 'mat_myolegs')
+    geom_node.set('rgba', '0.8 0.85 0.8 1')
+    geom_node.set('conaffinity', '0')
+    geom_node.set('contype', '0')
+
+    # Add site element
+    site_node = ET.SubElement(default_myolegs, 'site')
+    site_node.set('size', '0.001 0.005 0.005')
+    site_node.set('group', '3')
+
+    # Add nested default node with class "muscle"
+    default_muscle = ET.SubElement(default_myolegs, 'default')
+    default_muscle.set('class', 'muscle')
+    general_node = ET.SubElement(default_muscle, 'general')
+    general_node.set('biasprm', '0.75 1.05 -1 400 0.5 1.6 1.5 1.3 1.2 0')
+    general_node.set('biastype', 'muscle')
+    general_node.set('ctrllimited', 'true')
+    general_node.set('ctrlrange', '0 1')
+    general_node.set('dynprm', '0.01 0.04 0 0 0 0 0 0 0 0')
+    general_node.set('dyntype', 'muscle')
+    general_node.set('gainprm', '0.75 1.05 -1 400 0.5 1.6 1.5 1.3 1.2 0')
+    general_node.set('gaintype', 'muscle')
+
+    # Add nested default node with class "wrap"
+    default_wrap = ET.SubElement(default_myolegs, 'default')
+    default_wrap.set('class', 'wrap')
+    wrap_geom_node = ET.SubElement(default_wrap, 'geom')
+    wrap_geom_node.set('rgba', '0.5 0.5 0.9 0.5')
+    wrap_geom_node.set('group', '3')
+    wrap_geom_node.set('contype', '0')
+    wrap_geom_node.set('conaffinity', '0')
+    wrap_geom_node.set('type', 'cylinder')
+
+    # Add nested default node with class "coll"
+    default_coll = ET.SubElement(default_myolegs, 'default')
+    default_coll.set('class', 'coll')
+    coll_geom_node = ET.SubElement(default_coll, 'geom')
+    coll_geom_node.set('type', 'capsule')
+    coll_geom_node.set('group', '1')
+    coll_geom_node.set('contype', '1')
+    coll_geom_node.set('conaffinity', '0')
+    coll_geom_node.set('condim', '3')
+    coll_geom_node.set('rgba', '0.8 0.7 0.5 1')
+    coll_geom_node.set('margin', '0.001')
+    coll_geom_node.set('material', 'MatSkin')
+
+    # Add nested default node with class "myo_leg_touch"
+    default_myo_leg_touch = ET.SubElement(default_myolegs, 'default')
+    default_myo_leg_touch.set('class', 'myo_leg_touch')
+    touch_site_node = ET.SubElement(default_myo_leg_touch, 'site')
+    touch_site_node.set('type', 'box')
+    touch_site_node.set('group', '3')
+    touch_site_node.set('rgba', '0.8 0.2 0.2 0.4')
+
+    # Add nested default node with class "myo_leg_marker"
+    default_myo_leg_marker = ET.SubElement(default_myolegs, 'default')
+    default_myo_leg_marker.set('class', 'myo_leg_marker')
+    marker_site_node = ET.SubElement(default_myo_leg_marker, 'site')
+    marker_site_node.set('size', '0.02')
+    marker_site_node.set('group', '4')
+    marker_site_node.set('rgba', '0.8 0.8 0.2 1')
 
     # Add solver/integration setup options
     mujoco_option = ET.Element('option')
@@ -138,6 +225,14 @@ def mod_mujoco_xml(mujocoXMLfile, mesh_dir, whichloaded):
     torso_geom.set('density', '0')
     torso_geom.set('mesh', 'PelvisLink')
 
+    #Add Sites
+    torso_site = ET.SubElement(torso_node, 'site')
+    torso_site.set('pelvissite','0 0 0')
+    torso_site.set('LeftHipBack','-0.08 0.08 -0.04')
+    torso_site.set('LeftHipFront','0.09 0.08 -0.04')
+    torso_site.set('RightHipBack','-0.08 -0.08 -0.04')
+    torso_site.set('RightHipFront','0.09 -0.08 -0.04')
+
     # Add joints
     torso_free_joint = ET.SubElement(torso_node, 'freejoint')
     torso_free_joint.set('name', 'root')
@@ -159,6 +254,10 @@ def mod_mujoco_xml(mujocoXMLfile, mesh_dir, whichloaded):
     thorax_imu.set('quat', ' '.join(map(str, thorax_quat)))
     thorax_imu.set('size', '.01')
 
+    torso_node.append(torso_geom)
+    torso_node.append(torso_free_joint)
+    torso_node.append(pelvis_imu)
+    torso_node.append(thorax_imu)
     torso_node.append(body_clone_left)
     torso_node.append(body_clone_right)
 
@@ -243,7 +342,7 @@ def mod_mujoco_xml(mujocoXMLfile, mesh_dir, whichloaded):
     for i in range(1, 5):
         opto = ET.SubElement(left_henke_node, 'site')
         opto.set('name', f'opto{i}')
-        opto.set('pos', '0 0 0')  # Replace with correct positions
+        opto.set('pos', ' '.join(map(str, [ExoConstants.dimensions.optoforce.pos[:, i-1], -ExoConstants.dimensions.toeHeight])))
         opto.set('quat', '1 0 0 1')
         opto.set('size', '0.05')
         opto.set('group', '2')
@@ -285,23 +384,39 @@ def mod_mujoco_xml(mujocoXMLfile, mesh_dir, whichloaded):
     for i in range(1, 5):
         opto = ET.SubElement(right_henke_node, 'site')
         opto.set('name', f'opto{i+4}')
-        opto.set('pos', '0 0 0')  # Replace with correct positions
+        opto.set('pos', ' '.join(map(str, [ExoConstants.dimensions.optoforce.pos[:, i-1], -ExoConstants.dimensions.toeHeight])))
         opto.set('quat', '1 0 0 1')
         opto.set('size', '0.05')
         opto.set('group', '2')
 
-    # Actuators
+    # Actuators for exo
+    # actuator_node = ET.SubElement(root, 'actuator')
+    # labels = ExoConstants.labels.joints
+    # limits = ExoConstants.limits.torque
+    # for i in range(len(labels)):
+    #     motor = ET.SubElement(actuator_node, 'motor')
+    #     motor_name = f"{labels[i]}Link_actuator"
+    #     joint_name = f"{labels[i]}Joint"
+    #     motor.set('name', motor_name)
+    #     motor.set('joint', joint_name)
+    #     motor.set('ctrlrange', f"{-limits[i]} {limits[i]}")
+    #     motor.set('ctrllimited', 'true')
+    
+    #Actuators
     actuator_node = ET.SubElement(root, 'actuator')
-    labels = ExoConstants.labels.joints
-    limits = ExoConstants.limits.torque
-    for i in range(len(labels)):
-        motor = ET.SubElement(actuator_node, 'motor')
-        motor_name = f"{labels[i]}Link_actuator"
-        joint_name = f"{labels[i]}Joint"
-        motor.set('name', motor_name)
-        motor.set('joint', joint_name)
-        motor.set('ctrlrange', f"{-limits[i]} {limits[i]}")
-        motor.set('ctrllimited', 'true')
+    for actuator in actuators:
+        actuator_node.append(actuator)
+    
+    #Sites
+    for site in sites:
+        world_new.append(site)
+
+    # Tendons
+    tendon_node = root.find('tendon')
+    if tendon_node is None:
+        tendon_node = ET.SubElement(root, 'tendon')
+    for tendon in tendons:
+        tendon_node.append(tendon)
 
     # Sensors
     sensor_node = ET.SubElement(root, 'sensor')
@@ -311,6 +426,20 @@ def mod_mujoco_xml(mujocoXMLfile, mesh_dir, whichloaded):
         opto = ET.SubElement(sensor_node, 'touch')
         opto.set('name', f'opto{i}')
         opto.set('site', f'opto{i}')
+
+    #Add equality
+    equality_node = root.find('equality')
+    if equality_node is None:
+        equality_node = ET.SubElement(root, 'equality')
+    for eq in equality_elements:
+        equality_node.append(eq)
+
+    #add sensor for muscle model
+    muscle_sites =['r_foot','r_toes','l_foot','l_toes']
+    for site in muscle_sites:
+        musclesensor= ET.SubElement(sensor_node, 'touch')
+        musclesensor.set('name',f'{site}')
+        musclesensor.set('site',f'{site}_touch')
 
     # Add 6 imu sensors
     imu_sites = ['pelvis', 'thorax', 'left_tibia', 'right_tibia', 'left_foot', 'right_foot']
@@ -330,13 +459,4 @@ def mod_mujoco_xml(mujocoXMLfile, mesh_dir, whichloaded):
         imu_accel.set('site', f'{site}_imu')
         imu_accel.set('noise', '1e-2')
 
-    # Include empty.xml
-    include_node = ET.Element('include')
-    include_node.set('file', 'empty.xml')
-    root.insert(0, include_node)
-
-    # Write over old file
     tree.write(mujocoXMLfile, encoding='utf-8', xml_declaration=True)
-
-# Example usage:
-# mod_mujoco_xml('path_to_mujocoXMLfile.xml', 'path_to_mesh_dir', 'loaded')

@@ -1,6 +1,5 @@
 import xml.etree.ElementTree as ET
-import numpy as np
-from scipy.spatial.transform import Rotation as R
+import math
 
 def exomujoco (obj, emptyXMLfile, mesh_dir, whichloaded):
     tree = ET.parse(emptyXMLfile)
@@ -290,10 +289,6 @@ def exomujoco (obj, emptyXMLfile, mesh_dir, whichloaded):
         motor.set('joint', joint_name)
         motor.set('ctrlrange', f"{-limits[i]} {limits[i]}")
         motor.set('ctrllimited', 'true')
-    
-    
-    #Add equality
-
 
     # Add sensors
     sensor_node = ET.SubElement(root, 'sensor')
@@ -329,7 +324,10 @@ def exomujoco (obj, emptyXMLfile, mesh_dir, whichloaded):
         imu_accel.set('site', f"{site}_imu")
         imu_accel.set('noise', '1e-2')
 
-    # Write to file
+    include_node = ET.Element('include')
+    include_node.set('file', 'empty.xml')
+    root.insert(0, include_node)
+    
     tree.write(exowtendonXMLfile)
 
 
