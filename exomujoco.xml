@@ -1,1 +1,391 @@
-function filename= exomujoco.xml (obj,)
+import xml.etree.ElementTree as ET
+from scipy.spatial.transform import Rotation as R
+
+function filename = exomujococ_xml(obj,exomwtendonXMLfile,mesh_dir,whichloaded)
+robotNode = xmlread(exomwtendonXMLfile);
+
+%imu: pelvis, thorax, left tibia, right tibia, left foot, right foot
+pelvis_rpy = [-1.570796 0.0 1.570796];
+pelvis_pos = [-0.164445 -0.014625 0.191095];
+thorax_rpy = [0.0 1.570796 0.0];
+thorax_pos = [-0.14 0.0 0.5];
+left_tibia_rpy = [-1.570796 -0.0 -3.141592];
+left_tibia_pos = [-0.140666 -0.074092 -0.393475]; %note not sure why left tibia and right tia have diff pos
+right_tibia_rpy = [-1.570796 -0.0 0.0];
+right_tibia_pos = [-0.11573 0.074342 -0.393475];
+foot_rpy = [-3.141593 0.663225 0.0]; %left and right foot have the same angle
+foot_pos = [-0.036966 0.015 -0.13705];
+
+mujoco_node = robotNode.getDocumentElement;
+size_node = robotNode.getElementsByTagName('size').item(0);
+asset_node = robotNode.getElementsByTagName('asset').item(0);
+world_node = robotNode.getElementsByTagName('worldbody').item(0);
+compiler_node = robotNode.getElementsByTagName('compiler').item(0);
+default_node = robotNode.createElement('default');
+
+%add meshdir path
+compiler_node.setAttribute('meshdir',mesh_dir);
+
+%modify size
+if ~isempty(size_node)
+    size_node.setAttribute('njmax',num2str('500'));
+    size_node.setAttribute('nconmax',num2str('100'));
+end
+
+%modify default setting
+joint_node = robotNode.createElement('joint');
+joint_node.setAttribute('limited','false');
+default_node.appendChild(joint_node);
+eq_param_node = robotNode.createElement('equality');
+eq_param_node.setAttribute('solref','0.02 1');
+eq_param_node.setAttribute('solimp','0.9 0.95 0.001 0.4 2');
+default_node.appendChild(eq_param_node);
+
+%add solver/intergration setup options
+mujoco_option = robotNode.createElement('option');
+mujoco_node.insertBefore(mujoco_option, asset_node);
+mujoco_option.setAttribute('timestep','0.001');
+mujoco_option.setAttribute('iterations','50');
+mujoco_option.setAttribute('solver','Newton');
+mujoco_option.setAttribute('gravity','0 0 -9.81');
+mujoco_option.setAttribute('integrator','RK4');
+
+%add visual settings
+mujoco_visual = robotNode.createElement('visual');
+mujoco_node.insertBefore(mujoco_visual,asset_node);
+headlight = robotNode.createElement('headlight');
+mujoco_visual.appendChild(headlight);
+headlight.setAttribute('ambient',num2str([0.5,0.5,0.5]));
+map = robotNode.createElement('map');
+mujoco_visual.appendChild(map);
+map.setAttribute('force','0.005'); %size of contact force arrows
+rgba = robotNode.createElement('rgba');
+mujoco_visual.appendChild(rgba);
+rgba.setAttribute('contactforce','0.7 0.9 0.9 0.5'); %color of contact force arrows
+
+%add plane texture/material to asset
+plane_texture = robotNode.createElement('texture');
+asset_node.appendChild(plane_texture);
+plane_texture.setAttribute('name','plane');
+plane_texture.setAttribute('type','2d');
+plane_texture.setAttribute('builtin','checker');
+plane_texture.setAttribute('rgb1','0.9 0.9 0.9');
+plane_texture.setAttribute('rgb2','0.7 0.7 0.7');
+plane_texture.setAttribute('width','512');
+plane_texture.setAttribute('height','512');
+
+plane_material = robotNode.createElement('material');
+asset_node.appendChild(plane_material);
+plane_material.setAttribute('name','plane');
+plane_material.setAttribute('reflectance','0.0');
+plane_material.setAttribute('texture','plane');
+plane_material.setAttribute('texrepeat','1 1');
+plane_material.setAttribute('texuniform','true');
+
+
+%modify worldbody
+body_left = robotNode.getElementsByTagName('body').item(0);
+body_clone_left =cloneNode(body_left,true);
+body_right = robotNode.getElementsByTagName('body').item(6);
+body_clone_right =cloneNode(body_right,true);
+
+%remove worldbody and add a new one
+removeChild(mujoco_node,world_node)
+world_new = robotNode.createElement('worldbody');
+
+
+%add plane geom
+geom_plane = robotNode.createElement('geom');
+geom_plane.setAttribute('name','plane');
+geom_plane.setAttribute('type','plane');
+geom_plane.setAttribute('material','plane');
+geom_plane.setAttribute('size','10 5 0.1');
+geom_plane.setAttribute('rgba','.9 .9 .9 1');
+geom_plane.setAttribute('condim','3');
+geom_plane.setAttribute('conaffinity','15');
+geom_plane.setAttribute('friction','1');
+world_new.appendChild(geom_plane);
+
+%add torso
+torso_node = robotNode.createElement('body');
+torso_node.setAttribute('name','torso');
+torso_node.setAttribute('pos','0 0 1');
+world_new.appendChild(torso_node);
+
+% manually add floating base frame (otherwise it defaults to fixed torso)
+assert(((ischar(whichloaded) && isrow(whichloaded)) || (isstring(whichloaded) && isscalar(whichloaded))) &&  (strcmpi(whichloaded,'loaded') || strcmpi(whichloaded,'empty')),"3nd argument must either be 'empty' or 'loaded'.");
+switch lower(whichloaded)
+    case 'loaded'
+        temp = obj.loadedExo.Bodies{6};
+    case 'empty'
+        temp = obj.emptyExo.Bodies{6};
+    otherwise 
+        error('"which" argument must be either "loaded" or "empty"');
+end
+
+%set torso inertial
+inertial = robotNode.createElement('inertial');
+inertial.setAttribute('pos',num2str(temp.CenterOfMass));
+inertial.setAttribute('mass',num2str(temp.Mass));
+
+inertialExo = dynamics.Inertia(-temp.Mass,[0;0;0],temp.Inertia);
+IGExo = inertialExo.inertiaAt(temp.CenterOfMass,eye(3));
+inertial.setAttribute('diaginertia',num2str(diag(IGExo)'));
+
+torso_node.appendChild(inertial);
+
+torso_geom = robotNode.createElement('geom');
+torso_geom.setAttribute('type','mesh');
+torso_geom.setAttribute('contype','0');
+torso_geom.setAttribute('conaffinity','0');
+torso_geom.setAttribute('group','1');
+torso_geom.setAttribute('density','0');
+% torso_geom.setAttribute('rgba','.7 .7 .7 1');
+torso_geom.setAttribute('mesh','PelvisLink');
+
+% Add Joints
+torso_free_joint = robotNode.createElement('freejoint');
+torso_free_joint.setAttribute('name','root');
+
+% Add IMUS
+pelvis_imu = robotNode.createElement('site');
+pelvis_imu.setAttribute('name','pelvis_imu');
+pelvis_imu.setAttribute('group','3');
+pelvis_imu.setAttribute('pos',num2str(pelvis_pos));
+pelvis_quat = angle2quat(pelvis_rpy(3),pelvis_rpy(2),pelvis_rpy(1));
+pelvis_imu.setAttribute('quat',num2str(pelvis_quat));
+pelvis_imu.setAttribute('size','.01');
+
+thorax_imu = robotNode.createElement('site');
+thorax_imu.setAttribute('name','thorax_imu');
+thorax_imu.setAttribute('group','3');
+thorax_imu.setAttribute('pos',num2str(thorax_pos));
+thorax_quat = angle2quat(thorax_rpy(3),thorax_rpy(2),thorax_rpy(1));
+thorax_imu.setAttribute('quat',num2str(thorax_quat));
+thorax_imu.setAttribute('size','.01');
+
+torso_node.appendChild(torso_geom);
+torso_node.appendChild(torso_free_joint);
+torso_node.appendChild(pelvis_imu);
+torso_node.appendChild(thorax_imu);
+torso_node.appendChild(body_clone_left);
+torso_node.appendChild(body_clone_right);
+
+mujoco_node.appendChild(world_new);
+
+%% Add Contact Pair for Feet
+contact = robotNode.createElement('contact');
+
+for whichgeom1 = {'left_sole','right_sole','left_toe','right_toe','left_heel','right_heel'}
+pair = robotNode.createElement('pair');
+pair.setAttribute('geom1',whichgeom1{:});
+pair.setAttribute('geom2','plane');
+pair.setAttribute('margin','0.0015');
+pair.setAttribute('condim','4');
+pair.setAttribute('friction','1 1 0.005 0.0001 0.0001');
+contact.appendChild(pair);
+end
+
+mujoco_node.appendChild(contact);
+
+%% Add IMU Sites to Ankles
+left_tibia_imu = robotNode.createElement('site');
+left_tibia_imu.setAttribute('name','left_tibia_imu');
+left_tibia_imu.setAttribute('group','3');
+left_tibia_imu.setAttribute('pos',num2str(left_tibia_pos));
+left_tibia_quat = angle2quat(left_tibia_rpy(3),left_tibia_rpy(2),left_tibia_rpy(1));
+left_tibia_imu.setAttribute('quat',num2str(left_tibia_quat));
+left_tibia_imu.setAttribute('size','.01');
+
+right_tibia_imu = robotNode.createElement('site');
+right_tibia_imu.setAttribute('name','right_tibia_imu');
+right_tibia_imu.setAttribute('group','3');
+right_tibia_imu.setAttribute('pos',num2str(right_tibia_pos));
+right_tibia_quat = angle2quat(right_tibia_rpy(3),right_tibia_rpy(2),right_tibia_rpy(1));
+right_tibia_imu.setAttribute('quat',num2str(right_tibia_quat));
+right_tibia_imu.setAttribute('size','.01');
+
+%remove child node and add a new one with left tibia imu
+left_saggittal_knee_node = robotNode.getElementsByTagName('body').item(4);
+assert(strcmp(left_saggittal_knee_node.getAttribute('name'),'LeftSagittalKneeLink'));
+knee_child_node = robotNode.getElementsByTagName('body').item(5);
+clone_knee_child_node =cloneNode(knee_child_node,true);
+removeChild(left_saggittal_knee_node,knee_child_node);
+left_saggittal_knee_node.appendChild(left_tibia_imu);
+left_saggittal_knee_node.appendChild(clone_knee_child_node);
+
+%remove child node and add a new one with right tibia imu
+right_saggittal_knee_node = robotNode.getElementsByTagName('body').item(10);
+assert(strcmp(right_saggittal_knee_node.getAttribute('name'),'RightSagittalKneeLink'));
+knee_child_node = robotNode.getElementsByTagName('body').item(11);
+clone_knee_child_node =cloneNode(knee_child_node,true);
+removeChild(right_saggittal_knee_node,knee_child_node);
+right_saggittal_knee_node.appendChild(right_tibia_imu);
+right_saggittal_knee_node.appendChild(clone_knee_child_node);
+
+%% %%%%%%%%%%%%%%%%%%%% LEFT FOOT ADD-ONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+left_henke_node = robotNode.getElementsByTagName('body').item(6);
+left_collision_node = left_henke_node.getChildNodes().item(7);
+assert(strcmp(left_collision_node.getAttribute('type'),'box'));
+left_collision_node.setAttribute('size','0.0049535 0.059645 0.1375');
+left_collision_node.setAttribute('rgba','1 0 0 1');
+left_collision_node.setAttribute('condim','4');
+left_collision_node.setAttribute('name','left_sole');
+left_collision_node.setAttribute('friction','1');
+   
+left_collision_toe = robotNode.createElement('geom');     
+left_collision_toe.setAttribute('condim','4');
+left_collision_toe.setAttribute('friction','1');
+left_collision_toe.setAttribute('name','left_toe');
+left_collision_toe.setAttribute('pos','0.2195 0 -0.1537');
+left_collision_toe.setAttribute('quat','0.6018 0 -0.7986 0');
+left_collision_toe.setAttribute('rgba','1 0 0 1');
+left_collision_toe.setAttribute('size','0.0049535 0.059645 0.022');
+left_collision_toe.setAttribute('type','box');
+left_henke_node.appendChild(left_collision_toe);
+
+left_collision_heel = robotNode.createElement('geom');     
+left_collision_heel.setAttribute('condim','4');
+left_collision_heel.setAttribute('friction','1');
+left_collision_heel.setAttribute('name','left_heel');
+left_collision_heel.setAttribute('pos','-0.0940 0 -0.1566');
+left_collision_heel.setAttribute('quat','0.7716 0 -0.6361 0');
+left_collision_heel.setAttribute('rgba','1 0 0 1');
+left_collision_heel.setAttribute('size','0.0049535 0.059645 0.0165');
+left_collision_heel.setAttribute('type','box');
+left_henke_node.appendChild(left_collision_heel);
+
+
+assert(strcmp(left_henke_node.getAttribute('name'),'LeftHenkeAnkleLink'));
+
+foot_imu = robotNode.createElement('site');
+foot_imu.setAttribute('name','left_foot_imu');
+foot_imu.setAttribute('pos',num2str(foot_pos));
+foot_quat = angle2quat(foot_rpy(3),foot_rpy(2),foot_rpy(1));
+foot_imu.setAttribute('quat',num2str(foot_quat));
+foot_imu.setAttribute('size','.01');
+left_henke_node.appendChild(foot_imu);
+
+% Add bodies for each optoforce 'site' 
+for i = 1:4
+    opto = robotNode.createElement('site');
+    opto.setAttribute('name',sprintf('opto%i',i));
+    opto.setAttribute('pos',num2str([ExoConstants.dimensions.optoforce.pos(:,i)', -ExoConstants.dimensions.toeHeight]));
+    opto.setAttribute('quat','1 0 0 1');
+    opto.setAttribute('size','0.05');
+    opto.setAttribute('group','2');
+    left_henke_node.appendChild(opto);
+end
+
+
+%%%%%%%%%%%%%%%%%%%%% RIGHT FOOT ADD-ONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+right_henke_node = robotNode.getElementsByTagName('body').item(12);
+right_collision_node = right_henke_node.getChildNodes().item(7);
+assert(strcmp(right_collision_node.getAttribute('type'),'box'));
+right_collision_node.setAttribute('size','0.0049535 0.059645 0.1375');
+right_collision_node.setAttribute('rgba','1 0 0 1');
+right_collision_node.setAttribute('condim','4');
+right_collision_node.setAttribute('name','right_sole');
+right_collision_node.setAttribute('friction','1');
+
+right_collision_toe = robotNode.createElement('geom');     
+right_collision_toe.setAttribute('condim','4');
+right_collision_toe.setAttribute('friction','1');
+right_collision_toe.setAttribute('name','right_toe');
+right_collision_toe.setAttribute('pos','0.2195 0 -0.1537');
+right_collision_toe.setAttribute('quat','0.6018 0 -0.7986 0');
+right_collision_toe.setAttribute('rgba','1 0 0 1');
+right_collision_toe.setAttribute('size','0.0049535 0.059645 0.022');
+right_collision_toe.setAttribute('type','box');
+right_henke_node.appendChild(right_collision_toe);
+
+right_collision_heel = robotNode.createElement('geom');     
+right_collision_heel.setAttribute('condim','4');
+right_collision_heel.setAttribute('friction','1');
+right_collision_heel.setAttribute('name','right_heel');
+right_collision_heel.setAttribute('pos','-0.0940 0 -0.1566');
+right_collision_heel.setAttribute('quat','0.7716 0 -0.6361 0');
+right_collision_heel.setAttribute('rgba','1 0 0 1');
+right_collision_heel.setAttribute('size','0.0049535 0.059645 0.0165');
+right_collision_heel.setAttribute('type','box');
+right_henke_node.appendChild(right_collision_heel);
+
+assert(strcmp(right_henke_node.getAttribute('name'),'RightHenkeAnkleLink'));
+right_foot_imu = cloneNode(foot_imu,true);
+right_foot_imu.setAttribute('name','right_foot_imu');
+right_henke_node.appendChild(right_foot_imu);
+
+for i = 1:4
+    opto = robotNode.createElement('site');
+    opto.setAttribute('name',sprintf('opto%i',i+4));
+    opto.setAttribute('pos',num2str([ExoConstants.dimensions.optoforce.pos(:,i)', -ExoConstants.dimensions.toeHeight]));
+    opto.setAttribute('quat','1 0 0 1');
+    opto.setAttribute('size','0.05');
+    opto.setAttribute('group','2');
+    right_henke_node.appendChild(opto);
+end
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%% ACTUATORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+actuator_node = robotNode.createElement('actuator');
+labels = ExoConstants.labels.joints;
+limits = ExoConstants.limits.torque;
+for i = 1:length(labels)
+    motor = robotNode.createElement('motor');
+    motor_name = [labels{i} 'Link_actuator'];
+    joint_name = [labels{i} 'Joint'];
+    motor.setAttribute('name',motor_name);
+    motor.setAttribute('joint',joint_name);
+    motor.setAttribute('ctrlrange',num2str([-limits(i),limits(i)]));
+    motor.setAttribute('ctrllimited','true');
+    actuator_node.appendChild(motor);
+
+end
+mujoco_node.appendChild(actuator_node);
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%% SENSORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+sensor_node =robotNode.createElement('sensor');
+
+%%%% Add 8 optoforce sensors on feet
+for i = 1:8
+    opto = robotNode.createElement('touch');
+    opto.setAttribute('name',sprintf('opto%i',i));
+    opto.setAttribute('site',sprintf('opto%i',i));
+    sensor_node.appendChild(opto);
+end
+
+%%%% Add 6 imu sensors
+imu_sites = {'pelvis','thorax','left_tibia', 'right_tibia','left_foot','right_foot'};
+for i = 1:numel(imu_sites)
+    
+    imu_ori = robotNode.createElement('framequat');
+    imu_ori.setAttribute('name',[imu_sites{i} '-orientation']);
+    imu_ori.setAttribute('objtype','site');
+    imu_ori.setAttribute('objname',[imu_sites{i} '_imu']);
+    sensor_node.appendChild(imu_ori);
+
+    imu_gyro =  robotNode.createElement('gyro');
+    imu_gyro.setAttribute('name',[imu_sites{i} '-angular-velocity']);
+    imu_gyro.setAttribute('site',[imu_sites{i} '_imu']);
+    imu_gyro.setAttribute('noise','5e-4');
+    % pelvis_imu_gyro.setAttribute('cutoff','34.9'); %need to check these numbers;
+    sensor_node.appendChild(imu_gyro);
+
+
+    imu_accel =  robotNode.createElement('accelerometer');
+    imu_accel.setAttribute('name',[imu_sites{i} '-linear-acceleration']);
+    imu_accel.setAttribute('site',[imu_sites{i} '_imu']);
+    imu_accel.setAttribute('noise','1e-2');
+    % pelvis_imu_accel.setAttribute('cutoff','157'); %need to check these numbers;
+    sensor_node.appendChild(imu_accel);
+    
+end
+
+% Write over old file
+mujoco_node.appendChild(sensor_node);
+% filename = strrep(mujocoXMLfile,'Exo','modExo');
+filename = mujocoXMLfile;
+xmlwrite(filename,robotNode);
+
+
+end
