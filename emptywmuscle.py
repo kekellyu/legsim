@@ -43,6 +43,8 @@ def mod_mujoco_xml(obj, mujocoXMLfile, mesh_dir, whichloaded,emptyXMLfile):
     foot_rpy = [-3.141593, 0.663225, 0.0]
     foot_pos = [-0.036966, 0.015, -0.13705]
 
+    #Tendon length
+
     # Add meshdir path
     compiler_node = root.find('compiler')
     compiler_node.set('meshdir', mesh_dir)
