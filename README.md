@@ -8,7 +8,7 @@
 
 (3) **emptyexo.xml:** xml file for only exoskeleton model without human body
 
-(4) **emptywmuscle.xml:** xml file for exoskeleton model with muscle model, without human body, limited tendon length 
+(4) **emptywmuscle.xml:** xml file for exoskeleton model with muscle model, connecting from exoskeleton to muscle, without human body, limited tendon length 
 
 (5) **emptywmuscle.py:** python script for exoskeleton model with muscle model, without human body, limited tendon length
 
@@ -18,4 +18,4 @@
 
 (8) **exotendon.xml:** manually adding four tendons on each front and back of the hip and knee of the left and right leg
 
-(9) **exowmuscle.xml:** xml file for exoskeleton model with muscle model, human body, unlimited tendon length 
+(9) **exowmuscle.xml:** xml file for exoskeleton model with muscle model, connecting from the muscle model to exoskeleton model, with human body, unlimited tendon length 
