@@ -18,4 +18,4 @@
 
 (8) **exotendon.xml:** manually adding four tendons on each front and back of the hip and knee of the left and right leg
 
-(9) **exowmuscle.xml:** not working
+(9) **exowmuscle.xml:** xml file for exoskeleton model with muscle model, human body, unlimited tendon length 
