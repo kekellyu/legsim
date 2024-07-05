@@ -16,6 +16,6 @@
 
 (7) **ExoMuscle.xml:** first edition of muscle and exoskeleton combination
 
-(8) **exotendon.xml:** manually adding only four tendons on front and back of the hip and knee on the left and right leg
+(8) **exotendon.xml:** manually adding four tendons on each front and back of the hip and knee of the left and right leg
 
 (9) **exowmuscle.xml:** not working
