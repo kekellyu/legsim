@@ -35,6 +35,7 @@
       <map force="0.005"/>
       <rgba contactforce="0.7 0.9 0.9 0.5"/>
    </visual>
+
    <asset>
       <mesh file="amber_sim/EMPTY_STL/PelvisLink.STL" name="PelvisLink"/>
       <mesh file="amber_sim/EMPTY_STL/LeftFrontalHipLink.STL" name="LeftFrontalHipLink"/>
