@@ -23,9 +23,3 @@
 (9) **exowmuscle.xml:** xml file for exoskeleton model with muscle model, connecting from the muscle model to exoskeleton model, with human body, unlimited tendon length 
 
 (10) **testversion.py:** draft file for python script
-
-### Parameters for the model
-
-(1) thigh length: 
-
-(2) shin length: 
