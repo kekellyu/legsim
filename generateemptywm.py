@@ -1,12 +1,6 @@
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
 
-def parse_existing_xml(emptywmuscle):
-    tree = ET.parse(emptywmuscle.xml)
-    root = tree.getroot()
-    worldbody_element = root.find('worldbody')  # Assuming 'worldbody' is a direct child of the root
-    return worldbody_element
-
 # tree = ET.parse('emptywmuscle.xml')
 root = ET.Element("mujoco_model")
 root.set('mujoco','Amy_Li_emptyExo')
@@ -203,8 +197,915 @@ for mesh_info in mesh_files_myo:
     mesh.set('file', mesh_info['file'])
     mesh.set('name', mesh_info['name'])
 
+#Worldbody
+# emptywmuscle_path = 'emptywmuscle.xml'
+# tree = ET.parse(emptywmuscle_path)
+# emptywmuscle_root = tree.getroot()
+# worldbody_element = emptywmuscle_root.find('worldbody')
+# worldbody_new = ET.SubElement(root,'worldbody')  
+# worldbody_new.append(worldbody_element) 
+#  # Add torso
+# torso_node = ET.SubElement(worldbody_new, 'body')
+# torso_node.set('name', 'torso')
+# torso_node.set('pos', '0 0 1')
+# # Add plane geom
+# geom_plane = ET.SubElement(torso_node, 'geom')
+# geom_plane.set('name', 'plane')
+# geom_plane.set('type', 'plane')
+# geom_plane.set('material', 'plane')
+# geom_plane.set('size', '10 5 0.1')
+# geom_plane.set('rgba', '0.9 0.9 0.9 1')
+# geom_plane.set('condim', '3')
+# geom_plane.set('conaffinity', '15')
+# geom_plane.set('friction', '1')
+
+# sites = [
+#     {'name': "pelvissite", 'pos': "0 0 0"},
+#     {'name': "LeftHipBack", 'pos': "-0.08 0.08 -0.04"},
+#     {'name': "LeftHipFront", 'pos': "0.09 0.08 -0.04"},
+#     {'name': "RightHipBack", 'pos': "-0.08 -0.08 -0.04"},
+#     {'name': "RightHipFront", 'pos': "0.09 -0.08 -0.04"}
+# ]
+
+# for site in sites:
+#     site_node = ET.SubElement(torso_node, 'site')
+#     site_node.set('name', site['name'])
+#     site_node.set('pos', site['pos'])
+# import xml.etree.ElementTree as ET
+
+worldbody_node = ET.SubElement(root, 'worldbody')
+
+# Add the 'geom' element
+terrain_geom = {
+    'conaffinity': "3",
+    'condim': "3",
+    'friction': "1 .1 .1",
+    'material': "plane",
+    'name': "terrain_mesh",
+    'rgba': ".9 .9 .9 1",
+    'size': "10 5 0.1",
+    'type': "plane"
+}
+
+geom_node = ET.SubElement(worldbody_node, 'geom')
+for key, value in terrain_geom.items():
+    geom_node.set(key, value)
+
+# Function to add nested bodies recursively
+def add_body(parent_node, body_data):
+    body_node = ET.SubElement(parent_node, 'body', {'name': body_data['name'], 'pos': body_data['pos']})
+    
+    for site in body_data.get('sites', []):
+        ET.SubElement(body_node, 'site', site)
+    
+    for inertial in body_data.get('inertials', []):
+        ET.SubElement(body_node, 'inertial', inertial)
+    
+    for geom in body_data.get('geoms', []):
+        ET.SubElement(body_node, 'geom', geom)
+    
+    for joint in body_data.get('joints', []):
+        ET.SubElement(body_node, 'joint', joint)
+    
+    for child_body in body_data.get('bodies', []):
+        add_body(body_node, child_body)
+
+# Define the nested body structure
+bodies_data = [
+    {
+        'name': "torso",
+        'pos': "0 0 1",
+        'sites': [
+            {'name': "pelvissite", 'pos': "0 0 0"},
+            {'name': "LeftHipBack", 'pos': "-0.08 0.08 -0.04"},
+            {'name': "LeftHipFront", 'pos': "0.09 0.08 -0.04"},
+            {'name': "RightHipBack", 'pos': "-0.08 -0.08 -0.04"},
+            {'name': "RightHipFront", 'pos': "0.09 -0.08 -0.04"},
+            {'group': "3", 'name': "pelvis_imu", 'pos': "-0.16445 -0.014625 0.19109", 'quat': "0.5 -0.5 -0.5 0.5", 'size': ".01"},
+            {'group': "3", 'name': "thorax_imu", 'pos': "-0.14 0 0.5", 'quat': "0.70711 0 0.70711 0", 'size': ".01"}
+        ],
+        'inertials': [
+            {'diaginertia': "0.6633 0.55313 0.18091", 'mass': "16.4638", 'pos': "-0.18186 -0.00011 0.13746"}
+        ],
+        'geoms': [
+            {'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "PelvisLink", 'type': "mesh"}
+        ],
+        'bodies': [
+            {
+                'name': "LeftFrontalHipLink",
+                'pos': "0 0.089 0",
+                'sites': [{'name': "LeftFrontalHipSite", 'pos': "0 0 0"}],
+                'inertials': [{'diaginertia': "0.036612 0.0349177 0.00740632", 'mass': "3.6752", 'pos': "-0.18696 0.095567 0.018365", 'quat': "0.453895 0.291805 -0.721185 0.43442"}],
+                'joints': [{'axis': "1 0 0", 'name': "LeftFrontalHipJoint", 'pos': "0 0 0", 'range': "-0.2 0.3"}],
+                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftFrontalHipLink", 'type': "mesh"}],
+                'bodies': [
+                    {
+                        'name': "LeftTransverseHipLink",
+                        'pos': "-0.135 0.169 0",
+                        'sites': [{'name': "LeftTransverseHipSite", 'pos': "0 0 0"}],
+                        'inertials': [{'diaginertia': "0.0259937 0.0259386 0.00622165", 'mass': "4.4176", 'pos': "0.069171 -0.008671 0.004224", 'quat': "-0.114265 0.696606 -0.205723 0.677762"}],
+                        'joints': [{'axis': "0 0 1", 'name': "LeftTransverseHipJoint", 'pos': "0 0 0", 'range': "-0.2 0.3"}],
+                        'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftTransverseHipLink", 'type': "mesh"}],
+                        'bodies': [
+                            {
+                                'name': "LeftSagittalHipLink",
+                                'pos': "0.135 0 0",
+                                'sites': [{'name': "LeftSagittalHipSite", 'pos': "0 0 0"}],
+                                'inertials': [{'diaginertia': "0.17014 0.155437 0.0522649", 'mass': "8.9468", 'pos': "0.022786 -0.018046 -0.18739", 'quat': "0.518047 -0.0483842 0.0468759 0.852695"}],
+                                'joints': [{'axis': "0 1 0", 'name': "LeftSagittalHipJoint", 'pos': "0 0 0", 'range': "-2 0.3"}],
+                                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftSagittalHipLink", 'type': "mesh"}],
+                                'bodies': [
+                                    {
+                                        'name': "LeftSagittalKneeLink",
+                                        'pos': "0 0.0049114 -0.38",
+                                        'sites': [
+                                            {'name': "LeftSagittalKneeFront", 'pos': "0.06 0.013 0"},
+                                            {'name': "LeftSagittalKneeBack", 'pos': "-0.06 0.013 0"},
+                                            {'name': "LeftKneeFront", 'pos': "0.015 -0.16 -0.03"},
+                                            {'name': "LeftKneeBack", 'pos': "-0.07 -0.16 -0.03"},
+                                            {'name': "LeftSagittalKneeSite", 'pos': "0 0 0"}
+                                        ],
+                                        'inertials': [{'diaginertia': "0.292576 0.283039 0.0639544", 'mass': "10.9753", 'pos': "-0.063222 -0.1107 -0.20848", 'quat': "0.96457 -0.15051 0.183544 -0.115166"}],
+                                        'joints': [{'axis': "0 1 0", 'name': "LeftSagittalKneeJoint", 'pos': "0 0 0", 'range': "0 1.9"}],
+                                        'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftSagittalKneeLink", 'type': "mesh"}],
+                                        'sites': [
+                                            {'group': "3", 'name': "left_tibia_imu", 'pos': "-0.14067 -0.074092 -0.39348", 'quat': "2.3108e-07 -2.3108e-07 0.70711 -0.70711", 'size': ".01"}
+                                        ],
+                                        'bodies': [
+                                            {
+                                                'name': "LeftSagittalAnkleLink",
+                                                'pos': "0 -0.16942 -0.408",
+                                                'quat': "0.997564 0 0 0.0697583",
+                                                'sites': [{'name': "LeftSagittalAnkleSite", 'pos': "0 0 0"}],
+                                                'inertials': [{'diaginertia': "0.00498533 0.00498533 0.00498533", 'mass': "1.6764", 'pos': "-0.043917 0.056353 -0.038953", 'quat': "0.390876 0.856905 0.0797629 -0.326448"}],
+                                                'joints': [{'axis': "0 1 0", 'name': "LeftSagittalAnkleJoint", 'pos': "0 0 0", 'range': "-0.3 0.2"}],
+                                                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftSagittalAnkleLink", 'type': "mesh"}],
+                                                'bodies': [
+                                                    {
+                                                        'name': "LeftHenkeAnkleLink",
+                                                        'pos': "0 0 0",
+                                                        'sites': [
+                                                            {'name': "LeftHenkeAnkleSite", 'pos': "0 0 0"},
+                                                            {'name': "LeftHenkeAnkleFront", 'pos': "0.033 0.1 0"},
+                                                            {'name': "LeftHenkeAnkleBack", 'pos': "-0.033 0.1 0"}
+                                                        ],
+                                                        'inertials': [{'diaginertia': "0.0289377 0.0289377 0.0289377", 'mass': "3.2239", 'pos': "-0.053246 2e-06 -0.11063", 'quat': "0.280854 0.443077 0.216278 0.823424"}],
+                                                        'joints': [{'axis': "0.788011 0 0.615661", 'name': "LeftHenkeAnkleJoint", 'pos': "0 0 0", 'range': "-0.3 0.3"}],
+                                                        'geoms': [
+                                                            {'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftHenkeAnkleLink", 'quat': "0.945518 0 -0.32557 0", 'type': "mesh"},
+                                                            {'condim': "4", 'friction': "1", 'name': "left_sole", 'pos': "0.06 -3.3e-05 -0.15975", 'quat': "0.707105 0 -0.707108 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.1375", 'type': "box"},
+                                                            {'condim': "4", 'friction': "1", 'name': "left_toe", 'pos': "0.2195 0 -0.1537", 'quat': "0.6018 0 -0.7986 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.022", 'type': "box"},
+                                                            {'condim': "4", 'friction': "1", 'name': "left_heel", 'pos': "-0.0940 0 -0.1566", 'quat': "0.7716 0 -0.6361 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.0165", 'type': "box"}
+                                                        ],
+                                                        'sites': [
+                                                            {'name': "LeftAnkleFront", 'pos': "0.025 0 -0.1"},
+                                                            {'name': "LeftAnkleBack", 'pos': "-0.04 0 -0.1"},
+                                                            {'name': "left_foot_imu", 'pos': "-0.036966 0.015 -0.13705", 'quat': "-1.6377e-07 -0.94552 -5.639e-08 0.32557", 'size': ".01"},
+                                                            {'group': "2", 'name': "opto1", 'pos': "0.17825 0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
+                                                            {'group': "2", 'name': "opto2", 'pos': "0.17825 -0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
+                                                            {'group': "2", 'name': "opto3", 'pos': "-0.063753 0.02625 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
+                                                            {'group': "2", 'name': "opto4", 'pos': "-0.063753 -0.02625 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"}
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        'name': "RightFrontalHipLink",
+        'pos': "0 -0.089 0",
+        'sites': [{'name': "RightFrontalHipSite", 'pos': "0 0 0"}],
+        'inertials': [{'diaginertia': "0.0365973 0.0349128 0.00740791", 'mass': "3.6752", 'pos': "-0.18696 -0.095567 0.01843", 'quat': "0.292578 0.454629 -0.434128 0.720585"}],
+        'joints': [{'axis': "1 0 0", 'name': "RightFrontalHipJoint", 'pos': "0 0 0", 'range': "-0.3 0.2"}],
+        'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightFrontalHipLink", 'type': "mesh"}],
+        'bodies': [
+            {
+                'name': "RightTransverseHipLink",
+                'pos': "-0.135 -0.169 0",
+                'sites': [{'name': "RightTransverseHipSite", 'pos': "0 0 0"}],
+                'inertials': [{'diaginertia': "0.0259901 0.0259386 0.00622121", 'mass': "4.4176", 'pos': "0.069166 0.008663 0.004212", 'quat': "0.111328 0.697511 0.202883 0.678177"}],
+                'joints': [{'axis': "0 0 1", 'name': "RightTransverseHipJoint", 'pos': "0 0 0", 'range': "-0.3 0.2"}],
+                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightTransverseHipLink", 'type': "mesh"}],
+                'bodies': [
+                    {
+                        'name': "RightSagittalHipLink",
+                        'pos': "0.135 0 0",
+                        'sites': [{'name': "RightSagittalHipSite", 'pos': "0 0 0"}],
+                        'inertials': [{'diaginertia': "0.17014 0.155437 0.0522649", 'mass': "8.9468", 'pos': "0.022786 0.018046 -0.18739", 'quat': "0.852695 0.0468759 -0.0483842 0.518047"}],
+                        'joints': [{'axis': "0 1 0", 'name': "RightSagittalHipJoint", 'pos': "0 0 0", 'range': "-2 0.3"}],
+                        'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightSagittalHipLink", 'type': "mesh"}],
+                        'bodies': [
+                            {
+                                'name': "RightSagittalKneeLink",
+                                'pos': "0 -0.0049114 -0.38",
+                                'sites': [
+                                    {'name': "RightSagittalKneeFront", 'pos': "0.06 0.013 0"},
+                                    {'name': "RightSagittalKneeBack", 'pos': "-0.06 0.013 0"},
+                                    {'name': "RightKneeFront", 'pos': "0.015 0.16 -0.03"},
+                                    {'name': "RightKneeBack", 'pos': "-0.07 0.16 -0.03"},
+                                    {'name': "RightSagittalKneeSite", 'pos': "0 0 0"}
+                                ],
+                                'inertials': [{'diaginertia': "0.292576 0.283039 0.0639544", 'mass': "10.9753", 'pos': "-0.063222 0.1107 -0.20848", 'quat': "0.96457 0.15051 0.183544 0.115166"}],
+                                'joints': [{'axis': "0 1 0", 'name': "RightSagittalKneeJoint", 'pos': "0 0 0", 'range': "0 1.9"}],
+                                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightSagittalKneeLink", 'type': "mesh"}],
+                                'sites': [
+                                    {'group': "3", 'name': "right_tibia_imu", 'pos': "-0.11573 0.074342 -0.39348", 'quat': "0.70711 -0.70711 0 0", 'size': ".01"}
+                                ],
+                                'bodies': [
+                                    {
+                                        'name': "RightSagittalAnkleLink",
+                                        'pos': "0 0.16942 -0.408",
+                                        'quat': "0.997564 0 0 -0.0697583",
+                                        'sites': [{'name': "RightSagittalAnkleSite", 'pos': "0 0 0"}],
+                                        'inertials': [{'diaginertia': "0.00498533 0.00498533 0.00498533", 'mass': "1.6764", 'pos': "-0.043917 -0.056352 -0.038953", 'quat': "0.856905 0.390876 0.326448 -0.0797629"}],
+                                        'joints': [{'axis': "0 1 0", 'name': "RightSagittalAnkleJoint", 'pos': "0 0 0", 'range': "-0.3 0.2"}],
+                                        'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightSagittalAnkleLink", 'type': "mesh"}],
+                                        'bodies': [
+                                            {
+                                                'name': "RightHenkeAnkleLink",
+                                                'pos': "0 0 0",
+                                                'sites': [
+                                                    {'name': "RightHenkeAnkleSite", 'pos': "0 0 0"},
+                                                    {'name': "RightHenkeAnkleFront", 'pos': "0.033 -0.1 0"},
+                                                    {'name': "RightHenkeAnkleBack", 'pos': "-0.033 -0.1 0"}
+                                                ],
+                                                'inertials': [{'diaginertia': "0.0289377 0.0289377 0.0289377", 'mass': "3.2239", 'pos': "-0.053246 -2e-06 -0.11063", 'quat': "-0.280854 0.443077 -0.216278 0.823424"}],
+                                                'joints': [{'axis': "0.788011 0 0.615661", 'name': "RightHenkeAnkleJoint", 'pos': "0 0 0", 'range': "-0.3 0.3"}],
+                                                'geoms': [
+                                                    {'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightHenkeAnkleLink", 'quat': "0.945518 0 -0.32557 0", 'type': "mesh"},
+                                                    {'condim': "4", 'friction': "1", 'name': "right_sole", 'pos': "0.06 -3.3e-05 -0.15975", 'quat': "0.707105 0 -0.707108 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.1375", 'type': "box"},
+                                                    {'condim': "4", 'friction': "1", 'name': "right_toe", 'pos': "0.2195 0 -0.1537", 'quat': "0.6018 0 -0.7986 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.022", 'type': "box"},
+                                                    {'condim': "4", 'friction': "1", 'name': "right_heel", 'pos': "-0.0940 0 -0.1566", 'quat': "0.7716 0 -0.6361 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.0165", 'type': "box"}
+                                                ],
+                                                'sites': [
+                                                    {'name': "RightAnkleFront", 'pos': "0.025 0 -0.1"},
+                                                    {'name': "RightAnkleBack", 'pos': "-0.04 0 -0.1"},
+                                                    {'name': "right_foot_imu", 'pos': "-0.036966 0.015 -0.13705", 'quat': "-1.6377e-07 -0.94552 -5.639e-08 0.32557", 'size': ".01"},
+                                                    {'group': "2", 'name': "opto5", 'pos': "0.17825 0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
+                                                    {'group': "2", 'name': "opto6", 'pos': "0.17825 -0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
+                                                    {'group': "2", 'name': "opto7", 'pos': "-0.063753 0.02625 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
+                                                    {'group': "2", 'name': "opto8", 'pos': "-0.063753 -0.02625 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"}
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
+
+# Add all bodies to the worldbody
+for body in bodies_data:
+    add_body(worldbody_node, body)
 
 
+# Function to add bodies and their nested elements
+def add_body(parent_node, body_data):
+    body_node = ET.SubElement(parent_node, 'body', name=body_data['name'], pos=body_data['pos'])
+    if 'quat' in body_data:
+        body_node.set('quat', body_data['quat'])
+    if 'childclass' in body_data:
+        body_node.set('childclass', body_data['childclass'])
+    
+    for site in body_data.get('sites', []):
+        ET.SubElement(body_node, 'site', site)
+    
+    for inertial in body_data.get('inertials', []):
+        ET.SubElement(body_node, 'inertial', inertial)
+    
+    for joint in body_data.get('joints', []):
+        ET.SubElement(body_node, 'joint', joint)
+    
+    for geom in body_data.get('geoms', []):
+        ET.SubElement(body_node, 'geom', geom)
+    
+    for child_body in body_data.get('bodies', []):
+        add_body(body_node, child_body)
+
+# Add <worldbody> element
+worldbody_node = ET.SubElement(root, 'worldbody')
+
+# Define the <geom> element in <worldbody>
+terrain_geom = {
+    'conaffinity': "15", 'condim': "3", 'friction': "1", 'material': "plane", 'name': "plane",
+    'rgba': ".9 .9 .9 1", 'size': "10 5 0.1", 'type': "plane"
+}
+ET.SubElement(worldbody_node, 'geom', terrain_geom)
+
+# Define all bodies and nested structures
+bodies_data = [
+    {
+        'name': "pelvis",
+        'pos': "0 0 1",
+        'quat': "0.707107 0.707107 0 0",
+        'childclass': "myolegs",
+        'sites': [
+            {'name': "pelvislocation", 'pos': "0 0 0"},
+            {'name': "pelvis", 'class': "myo_leg_marker"}
+        ],
+        'inertials': [
+            {'pos': "-0.07 -0.03 0", 'mass': "10.96", 'diaginertia': "0.0622075 0.0532711 0.0299242"}
+        ],
+        'geoms': [
+            {'mesh': "r_pelvis", 'name': "r_pelvis", 'type': "mesh"},
+            {'mesh': "l_pelvis", 'name': "l_pelvis", 'type': "mesh"},
+            {'mesh': "sacrum", 'name': "sacrum", 'type': "mesh"},
+            {'name': "Gmax1_at_pelvis_r_wrap", 'pos': "-0.077 -0.099 0.061", 'quat': "0.931256 -0.288071 0.213142 -0.0659324", 'class': "wrap", 'size': "0.04 0.075"},
+            {'name': "Gmax2_at_pelvis_r_wrap", 'pos': "-0.08 -0.083 0.068", 'quat': "0.912872 -0.359331 0.180301 -0.0709714", 'class': "wrap", 'size': "0.04 0.05"},
+            {'name': "Gmax3_at_pelvis_r_wrap", 'pos': "-0.083 -0.088 0.068", 'quat': "0.99875 -0.0499792 0 0", 'class': "wrap", 'size': "0.04 0.05"},
+            {'name': "Gmax1_at_pelvis_l_wrap", 'pos': "-0.077 -0.099 -0.061", 'quat': "0.931256 0.288071 -0.213142 -0.0659324", 'class': "wrap", 'size': "0.04 0.075"},
+            {'name': "Gmax2_at_pelvis_l_wrap", 'pos': "-0.08 -0.083 -0.068", 'quat': "0.912872 0.359331 -0.180301 -0.0709714", 'class': "wrap", 'size': "0.04 0.05"},
+            {'name': "Gmax3_at_pelvis_l_wrap", 'pos': "-0.083 -0.088 -0.068", 'quat': "0.99875 0.0499792 0 0", 'class': "wrap", 'size': "0.04 0.05"},
+            {'name': "PS_at_brim_r_wrap", 'pos': "-0.074 -0.06 0.0656", 'quat': "0.981103 -0.13006 -0.127199 0.0658971", 'class': "wrap", 'size': "0.05", 'type': "sphere"},
+            {'name': "PS_at_brim_l_wrap", 'pos': "-0.074 -0.06 -0.0656", 'quat': "0.981103 0.13006 0.127199 0.0658971", 'class': "wrap", 'size': "0.05", 'type': "sphere"},
+            {'name': "IL_at_brim_r_wrap", 'pos': "-0.071 -0.065 0.0756", 'quat': "0.874257 -0.193832 -0.0376181 0.443495", 'class': "wrap", 'size': "0.0549", 'type': "sphere"},
+            {'name': "IL_at_brim_l_wrap", 'pos': "-0.071 -0.065 -0.0756", 'quat': "0.874257 0.193832 0.0376181 0.443495", 'class': "wrap", 'size': "0.0549", 'type': "sphere"}
+        ],
+        'sites': [
+            {'name': "addbrev_r-P1", 'pos': "-0.0191 -0.094 0.0154"},
+            {'name': "addlong_r-P1", 'pos': "-0.0076 -0.0889 0.0189"},
+            {'name': "addmagDist_r-P1", 'pos': "-0.074 -0.1277 0.0398"},
+            {'name': "addmagIsch_r-P1", 'pos': "-0.0896 -0.1298 0.0417"},
+            {'name': "addmagMid_r-P1", 'pos': "-0.0527 -0.1208 0.0285"},
+            {'name': "addmagProx_r-P1", 'pos': "-0.031 -0.1076 0.0136"},
+            {'name': "bflh_r-P1", 'pos': "-0.104 -0.1191 0.0586"},
+            {'name': "glmax1_r-P1", 'pos': "-0.1231 0.0345 0.0563"},
+            {'name': "glmax1_r-P2", 'pos': "-0.1257 -0.0242 0.0779"},
+            {'name': "glmax2_r-P1", 'pos': "-0.1317 0.0087 0.0462"},
+            {'name': "glmax2_r-P2", 'pos': "-0.1344 -0.0609 0.0813"},
+            {'name': "glmax3_r-P1", 'pos': "-0.13 -0.0525 0.009"},
+            {'name': "glmax3_r-P2", 'pos': "-0.1273 -0.1263 0.0435"},
+            {'name': "glmed1_r-P1", 'pos': "-0.0445 0.0245 0.1172"},
+            {'name': "glmed2_r-P1", 'pos': "-0.085 0.0316 0.0675"},
+            {'name': "glmed3_r-P1", 'pos': "-0.1152 -0.0073 0.0526"},
+            {'name': "glmin1_r-P1", 'pos': "-0.0464 -0.0149 0.1042"},
+            {'name': "glmin2_r-P1", 'pos': "-0.0616 -0.0142 0.0971"},
+            {'name': "glmin3_r-P1", 'pos': "-0.0789 -0.0155 0.0798"},
+            {'name': "grac_r-P1", 'pos': "-0.0474 -0.1293 0.0246"},
+            {'name': "iliacus_r-P1", 'pos': "-0.0605 0.0309 0.0843"},
+            {'name': "iliacus_r-P2", 'pos': "-0.0135 -0.0557 0.0756"},
+            {'name': "piri_r-P1", 'pos': "-0.1018 -0.0065 0.0135"},
+            {'name': "piri_r-P2", 'pos': "-0.102 -0.0307 0.0609"},
+            {'name': "psoas_r-P1", 'pos': "-0.0606 0.062 0.039"},
+            {'name': "psoas_r-P2", 'pos': "-0.0205 -0.0654 0.0656"},
+            {'name': "recfem_r-P1", 'pos': "-0.024 -0.0388 0.0933"},
+            {'name': "sart_r-P1", 'pos': "-0.0195 -0.0156 0.1056"},
+            {'name': "semimem_r-P1", 'pos': "-0.0987 -0.114 0.0614"},
+            {'name': "semiten_r-P1", 'pos': "-0.1038 -0.1253 0.0515"},
+            {'name': "tfl_r-P1", 'pos': "-0.0311 0.0214 0.1241"},
+            {'name': "addbrev_l-P1", 'pos': "-0.0191 -0.094 -0.0154"},
+            {'name': "addlong_l-P1", 'pos': "-0.0076 -0.0889 -0.0189"},
+            {'name': "addmagDist_l-P1", 'pos': "-0.074 -0.1277 -0.0398"},
+            {'name': "addmagIsch_l-P1", 'pos': "-0.0896 -0.1298 -0.0417"},
+            {'name': "addmagMid_l-P1", 'pos': "-0.0527 -0.1208 -0.0285"},
+            {'name': "addmagProx_l-P1", 'pos': "-0.031 -0.1076 -0.0136"},
+            {'name': "bflh_l-P1", 'pos': "-0.104 -0.1191 -0.0586"},
+            {'name': "glmax1_l-P1", 'pos': "-0.1231 0.0345 -0.0563"},
+            {'name': "glmax1_l-P2", 'pos': "-0.1257 -0.0242 -0.0779"},
+            {'name': "glmax2_l-P1", 'pos': "-0.1317 0.0087 -0.0462"},
+            {'name': "glmax2_l-P2", 'pos': "-0.1344 -0.0609 -0.0813"},
+            {'name': "glmax3_l-P1", 'pos': "-0.13 -0.0525 -0.009"},
+            {'name': "glmax3_l-P2", 'pos': "-0.1273 -0.1263 -0.0435"},
+            {'name': "glmed1_l-P1", 'pos': "-0.0445 0.0245 -0.1172"},
+            {'name': "glmed2_l-P1", 'pos': "-0.085 0.0316 -0.0675"},
+            {'name': "glmed3_l-P1", 'pos': "-0.1152 -0.0073 -0.0526"},
+            {'name': "glmin1_l-P1", 'pos': "-0.0464 -0.0149 -0.1042"},
+            {'name': "glmin2_l-P1", 'pos': "-0.0616 -0.0142 -0.0971"},
+            {'name': "glmin3_l-P1", 'pos': "-0.0789 -0.0155 -0.0798"},
+            {'name': "grac_l-P1", 'pos': "-0.0474 -0.1293 -0.0246"},
+            {'name': "iliacus_l-P1", 'pos': "-0.0605 0.0309 -0.0843"},
+            {'name': "iliacus_l-P2", 'pos': "-0.0135 -0.0557 -0.0756"},
+            {'name': "piri_l-P1", 'pos': "-0.1018 -0.0065 -0.0135"},
+            {'name': "piri_l-P2", 'pos': "-0.102 -0.0307 -0.0609"},
+            {'name': "psoas_l-P1", 'pos': "-0.0606 0.062 -0.039"},
+            {'name': "psoas_l-P2", 'pos': "-0.0205 -0.0654 -0.0656"},
+            {'name': "recfem_l-P1", 'pos': "-0.024 -0.0388 -0.0933"},
+            {'name': "sart_l-P1", 'pos': "-0.0195 -0.0156 -0.1056"},
+            {'name': "semimem_l-P1", 'pos': "-0.0987 -0.114 -0.0614"},
+            {'name': "semiten_l-P1", 'pos': "-0.1038 -0.1253 -0.0515"},
+            {'name': "tfl_l-P1", 'pos': "-0.0311 0.0214 -0.1241"},
+            {'name': "RASI", 'pos': "0.0095 0.0181 0.1285"},
+            {'name': "LASI", 'pos': "0.0095 0.0181 -0.1285"},
+            {'name': "RPSI", 'pos': "-0.155 0.035 0.045"},
+            {'name': "LPSI", 'pos': "-0.155 0.035 -0.045"},
+            {'name': "Gmax1_at_pelvis_r_site_glmax1_r_side", 'pos': "-0.0929654 -0.0868446 0.124923"},
+            {'name': "Gmax2_at_pelvis_r_site_glmax2_r_side", 'pos': "-0.13018 -0.1232159 0.1219181"},
+            {'name': "Gmax3_at_pelvis_r_site_glmax3_r_side", 'pos': "-0.0530013 -0.127251 0.0521302"},
+            {'name': "Gmax1_at_pelvis_l_site_glmax1_l_side", 'pos': "-0.0929654 -0.0868446 -0.124923"},
+            {'name': "Gmax2_at_pelvis_l_site_glmax2_l_side", 'pos': "-0.13018 -0.1232159 -0.1219181"},
+            {'name': "Gmax3_at_pelvis_l_site_glmax3_l_side", 'pos': "-0.0530013 -0.127251 -0.0521302"},
+            {'name': "PS_at_brim_r_site_psoas_r_side", 'pos': "-0.0209166 -0.0856869 0.0790765"},
+            {'name': "PS_at_brim_l_site_psoas_l_side", 'pos': "-0.0209166 -0.0856869 -0.0790765"},
+            {'name': "IL_at_brim_r_site_iliacus_r_side", 'pos': "-0.02526034 -0.0256276 0.0928915"},
+            {'name': "IL_at_brim_l_site_iliacus_l_side", 'pos': "-0.00526034 -0.0756276 -0.0828915"}
+        ],
+        'bodies': [
+            {
+                'name': "femur_r",
+                'pos': "-0.056276 -0.07849 0.07726",
+                'sites': [{'name': "hip_r_location", 'pos': "0 0 0"}, {'name': "hip_r", 'class': "myo_leg_marker"}],
+                'inertials': [{'pos': "0 -0.195 -0.0005", 'quat': "0.708013 -0.7062 0 0", 'mass': "8.4", 'diaginertia': "0.1694 0.1694 0.0245269"}],
+                'joints': [
+                    {'axis': "0 0 1", 'name': "hip_flexion_r", 'pos': "0 0 0", 'range': "-0.523599 2.0944"},
+                    {'axis': "1 0 0", 'name': "hip_adduction_r", 'pos': "0 0 0", 'range': "-0.872665 0.523599"},
+                    {'axis': "0 1 0", 'name': "hip_rotation_r", 'pos': "0 0 0", 'range': "-0.698132 0.698132"}
+                ],
+                'geoms': [
+                    {'mesh': "r_femur", 'name': "r_femur", 'type': "mesh"},
+                    {'name': "Gastroc_at_condyles_r_wrap", 'pos': "0.005 -0.41 0", 'class': "wrap", 'size': "0.025 0.05"},
+                    {'name': "KnExt_at_fem_r_wrap", 'pos': "0.00358828 -0.402732 0.00209111", 'quat': "0.999192 -0.0311532 0.025365 -0.00079084", 'class': "wrap", 'size': "0.025 0.05"},
+                    {'name': "AB_at_femshaft_r_wrap", 'pos': "0.0146434 -0.112595 0.023365", 'quat': "0.671362 0.735248 0.0628354 0.0688147", 'class': "wrap", 'size': "0.0165 0.035"},
+                    {'name': "AL_at_femshaft_r_wrap", 'pos': "0.0307327 -0.231909 0.0151137", 'quat': "0.629067 0.774355 0.0429971 0.0529276", 'class': "wrap", 'size': "0.0201 0.05"},
+                    {'name': "AMprox_at_femshaft_r_wrap", 'pos': "0.00518299 -0.0728948 0.025403", 'quat': "0.689646 0.718132 0.0645174 0.0671823", 'class': "wrap", 'size': "0.0211 0.035"},
+                    {'name': "AMmid_at_femshaft_r_wrap", 'pos': "0.0230125 -0.160711 0.0205842", 'quat': "0.690996 0.719631 0.0472547 0.0492129", 'class': "wrap", 'size': "0.0214 0.06"},
+                    {'name': "AMdist_at_femshaft_r_wrap", 'pos': "0.0316065 -0.260736 0.0093646", 'quat': "0.652657 0.751902 0.061082 0.0703703", 'class': "wrap", 'size': "0.0218 0.1"},
+                    {'name': "AMisch_at_condyles_r_wrap", 'pos': "-0.0226511 -0.376831 -0.00315437", 'quat': "0.638263 0.734777 -0.150578 -0.173347", 'class': "wrap", 'size': "0.04 0.12"},
+                    {'name': "PECT_at_femshaft_r_wrap", 'pos': "0.00608573 -0.0845029 0.0304405", 'quat': "0.610649 0.779832 0.0849157 0.108442", 'class': "wrap", 'size': "0.015 0.025"}
+                ],
+                'sites': [
+                    {'name': "addbrev_r-P2", 'pos': "-0.002 -0.118 0.0249"},
+                    {'name': "addlong_r-P2", 'pos': "0.0113 -0.2394 0.0158"},
+                    {'name': "addmagDist_r-P2", 'pos': "0.0112 -0.2625 0.0193"},
+                    {'name': "addmagIsch_r-P2", 'pos': "0.0048 -0.388 -0.0327"},
+                    {'name': "addmagMid_r-P2", 'pos': "0.0024 -0.1624 0.0292"},
+                    {'name': "addmagProx_r-P2", 'pos': "-0.0153 -0.0789 0.032"},
+                    {'name': "bfsh_r-P1", 'pos': "0.005 -0.2111 0.0234"},
+                    {'name': "gaslat_r-P1", 'pos': "-0.003 -0.3814 0.0277"},
+                    {'name': "gasmed_r-P1", 'pos': "0.008 -0.3788 -0.0208"},
+                    {'name': "glmax1_r-P3", 'pos': "-0.0444 -0.0326 0.0302"},
+                    {'name': "glmax1_r-P4", 'pos': "-0.0277 -0.0566 0.047"},
+                    {'name': "glmax2_r-P3", 'pos': "-0.045 -0.0584 0.0252"},
+                    {'name': "glmax2_r-P4", 'pos': "-0.0156 -0.1016 0.0419"},
+                    {'name': "glmax3_r-P3", 'pos': "-0.0281 -0.1125 0.0094"},
+                    {'name': "glmax3_r-P4", 'pos': "-0.006 -0.1419 0.0411"},
+                    {'name': "glmed1_r-P2", 'pos': "-0.0218 -0.0117 0.0555"},
+                    {'name': "glmed2_r-P2", 'pos': "-0.0258 -0.0058 0.0527"},
+                    {'name': "glmed3_r-P2", 'pos': "-0.0309 -0.0047 0.0518"},
+                    {'name': "glmin1_r-P2", 'pos': "-0.0072 -0.0104 0.056"},
+                    {'name': "glmin2_r-P2", 'pos': "-0.0096 -0.0104 0.056"},
+                    {'name': "glmin3_r-P2", 'pos': "-0.0135 -0.0083 0.055"},
+                    {'name': "iliacus_r-P3", 'pos': "-0.0023 -0.0565 0.0139"},
+                    {'name': "iliacus_r-P4", 'pos': "-0.0122 -0.0637 0.0196"},
+                    {'name': "piri_r-P3", 'pos': "-0.0148 -0.0036 0.0437"},
+                    {'name': "psoas_r-P3", 'pos': "-0.0132 -0.0467 0.0046"},
+                    {'name': "psoas_r-P4", 'pos': "-0.0235 -0.0524 0.0088"},
+                    {'name': "sart_r-P2", 'pos': "-0.003 -0.3568 -0.0421"},
+                    {'name': "tfl_r-P2", 'pos': "0.0294 -0.0995 0.0597"},
+                    {'name': "tfl_r-P3", 'pos': "0.0107 -0.405 0.0324"},
+                    {'name': "vasint_r-P1", 'pos': "0.029 -0.1924 0.031"},
+                    {'name': "vasint_r-P2", 'pos': "0.0335 -0.2084 0.0285"},
+                    {'name': "vaslat_r-P1", 'pos': "0.0048 -0.1854 0.0349"},
+                    {'name': "vaslat_r-P2", 'pos': "0.0269 -0.2591 0.0409"},
+                    {'name': "vasmed_r-P1", 'pos': "0.014 -0.2099 0.0188"},
+                    {'name': "vasmed_r-P2", 'pos': "0.0356 -0.2769 0.0009"},
+                    {'name': "RHJC", 'pos': "0 0 0"},
+                    {'name': "RTH1", 'pos': "0.018 -0.15 0.064"},
+                    {'name': "RTH2", 'pos': "0.08 -0.23 0.0047"},
+                    {'name': "RTH3", 'pos': "0.01 -0.3 0.06"},
+                    {'name': "RLFC", 'pos': "0 -0.404 0.05"},
+                    {'name': "RMFC", 'pos': "0 -0.404 -0.05"},
+                    {'name': "KnExt_at_fem_r_site_recfem_r_side", 'pos': "0.028412 -0.418795 -0.0326861"},
+                    {'name': "KnExt_at_fem_r_site_vasint_r_side", 'pos': "0.0140493 -0.375075 -0.00469312"},
+                    {'name': "KnExt_at_fem_r_site_vaslat_r_side", 'pos': "0.0164816 -0.378983 -0.0366504"},
+                    {'name': "KnExt_at_fem_r_site_vasmed_r_side", 'pos': "0.0179815 -0.374402 0.023524"},
+                    {'name': "AB_at_femshaft_r_site_addbrev_r_side", 'pos': "-0.00249969 -0.126567 0.0261656"},
+                    {'name': "AL_at_femshaft_r_site_addlong_r_side", 'pos': "0.0113183 -0.263228 0.00405212"},
+                    {'name': "AMprox_at_femshaft_r_site_addmagProx_r_side", 'pos': "-0.0232677 -0.056978 0.0222299"},
+                    {'name': "AMmid_at_femshaft_r_site_addmagMid_r_side", 'pos': "-0.0100694 -0.108641 0.0230602"},
+                    {'name': "AMdist_at_femshaft_r_site_addmagDist_r_side", 'pos': "0.0146959 -0.298529 0.0158276"},
+                    {'name': "AMisch_at_condyles_r_site_addmagIsch_r_side", 'pos': "-0.0360341 -0.49032 -0.0446456"}
+                ],
+                'bodies': [
+                    {
+                        'name': "tibia_r",
+                        'pos': "-4.6e-07 -0.404425 -0.00126526",
+                        'sites': [{'name': "knee_r_location", 'pos': "0 0 0"}, {'name': "knee_r", 'class': "myo_leg_marker"}],
+                        'inertials': [{'pos': "-0.005 -0.175 0.0025", 'quat': "0.70204 -0.711847 0.0203385 0", 'mass': "3.8", 'diaginertia': "0.0771589 0.0771589 0.00690387"}],
+                        'joints': [
+                            {'axis': "0.992246 0.123982 -0.00878916", 'name': "knee_angle_r_translation2", 'pos': "0 0 0", 'range': "7.69254e-11 0.006792", 'type': "slide"},
+                            {'axis': "-0.124293 0.989762 -0.0701648", 'name': "knee_angle_r_translation1", 'pos': "0 0 0", 'range': "9.53733e-08 0.00159883", 'type': "slide"},
+                            {'axis': "-3.98373e-10 -0.0707131 -0.997497", 'name': "knee_angle_r", 'pos': "0 0 0", 'range': "0 2.0944"},
+                            {'axis': "0.992246 0.123982 -0.00878916", 'name': "knee_angle_r_rotation2", 'pos': "0 0 0", 'range': "-0.00167821 0.0335354"},
+                            {'axis': "-0.124293 0.989762 -0.0701648", 'name': "knee_angle_r_rotation3", 'pos': "0 0 0", 'range': "1.08939e-08 0.262788"}
+                        ],
+                        'geoms': [
+                            {'mesh': "r_tibia", 'name': "r_tibia", 'type': "mesh"},
+                            {'mesh': "r_fibula", 'name': "r_fibula", 'type': "mesh"},
+                            {'name': "GasLat_at_shank_r_wrap", 'pos': "-0.0074 -0.074 -0.0033", 'quat': "-0.0298211 0.737282 0.655511 -0.160722", 'class': "wrap", 'size': "0.055 0.05"},
+                            {'name': "GasMed_at_shank_r_wrap", 'pos': "-0.0074 -0.074 -0.0033", 'quat': "0.073733 0.735403 0.67187 -0.048347", 'class': "wrap", 'size': "0.055 0.05"},
+                            {'name': "GR_at_condyles_r_wrap", 'pos': "-0.003 -0.02 0", 'quat': "0.980067 0 -0.198669 0", 'class': "wrap", 'size': "0.036 0.05"},
+                            {'name': "SM_at_condyles_r_wrap", 'pos': "-0.001 -0.02 0", 'quat': "0.99875 0 -0.0499792 0", 'class': "wrap", 'size': "0.0352 0.05"},
+                            {'name': "ST_at_condyles_r_wrap", 'pos': "-0.002 -0.0205 0", 'quat': "0.995004 0 -0.0998334 0", 'class': "wrap", 'size': "0.0425 0.05"},
+                            {'name': "BF_at_gastroc_r_wrap", 'pos': "-0.058 -0.06 0", 'class': "wrap", 'size': "0.03 0.075"}
+                        ],
+                        'sites': [
+                            {'name': "bflh_r-P2", 'pos': "-0.0337 -0.035 0.0253"},
+                            {'name': "bflh_r-P3", 'pos': "-0.0287 -0.0455 0.0303"},
+                            {'name': "bfsh_r-P2", 'pos': "-0.0301 -0.0419 0.0318"},
+                            {'name': "edl_r-P1", 'pos': "-0.016 -0.1157 0.0205"},
+                            {'name': "edl_r-P2", 'pos': "0.0164 -0.376 0.0112"},
+                            {'name': "ehl_r-P1", 'pos': "-0.014 -0.155 0.0189"},
+                            {'name': "ehl_r-P2", 'pos': "0.0071 -0.2909 0.0164"},
+                            {'name': "ehl_r-P3", 'pos': "0.02 -0.3693 -0.0028"},
+                            {'name': "fdl_r-P1", 'pos': "-0.0023 -0.1832 -0.0018"},
+                            {'name': "fdl_r-P2", 'pos': "-0.0176 -0.3645 -0.0124"},
+                            {'name': "fhl_r-P1", 'pos': "-0.031 -0.2163 0.02"},
+                            {'name': "fhl_r-P2", 'pos': "-0.0242 -0.3671 -0.0076"},
+                            {'name': "grac_r-P2", 'pos': "-0.0184 -0.0476 -0.0296"},
+                            {'name': "grac_r-P3", 'pos': "0.0018 -0.0696 -0.0157"},
+                            {'name': "perbrev_r-P1", 'pos': "-0.0243 -0.2532 0.0251"},
+                            {'name': "perbrev_r-P2", 'pos': "-0.0339 -0.3893 0.0249"},
+                            {'name': "perbrev_r-P3", 'pos': "-0.0285 -0.4004 0.0255"},
+                            {'name': "perlong_r-P1", 'pos': "-0.02 -0.1373 0.0282"},
+                            {'name': "perlong_r-P2", 'pos': "-0.0317 -0.39 0.0237"},
+                            {'name': "perlong_r-P3", 'pos': "-0.0272 -0.4014 0.024"},
+                            {'name': "recfem_r-P5", 'pos': "0.0326 -0.0631 -0.0005"},
+                            {'name': "sart_r-P3", 'pos': "-0.0251 -0.0401 -0.0365"},
+                            {'name': "sart_r-P4", 'pos': "-0.0159 -0.0599 -0.0264"},
+                            {'name': "sart_r-P5", 'pos': "0.0136 -0.081 -0.0026"},
+                            {'name': "semimem_r-P2", 'pos': "-0.029 -0.0417 -0.0196"},
+                            {'name': "semiten_r-P2", 'pos': "-0.0312 -0.0508 -0.0229"},
+                            {'name': "semiten_r-P3", 'pos': "0.0019 -0.0773 -0.0117"},
+                            {'name': "soleus_r-P1", 'pos': "-0.0076 -0.0916 0.0098"},
+                            {'name': "tfl_r-P4", 'pos': "0.0108 -0.041 0.0346"},
+                            {'name': "tibant_r-P1", 'pos': "0.0154 -0.1312 0.0162"},
+                            {'name': "tibant_r-P2", 'pos': "0.0251 -0.1906 0.0128"},
+                            {'name': "tibant_r-P3", 'pos': "0.0233 -0.3659 -0.0132"},
+                            {'name': "tibpost_r-P1", 'pos': "-0.0041 -0.1304 0.0103"},
+                            {'name': "tibpost_r-P2", 'pos': "-0.0164 -0.3655 -0.0175"},
+                            {'name': "vasint_r-P5", 'pos': "0.0326 -0.0632 0.0004"},
+                            {'name': "vaslat_r-P5", 'pos': "0.0325 -0.0634 0.0051"},
+                            {'name': "vasmed_r-P5", 'pos': "0.0319 -0.0636 -0.0068"},
+                            {'name': "RKJC", 'pos': "0.0017 -0.0024 -0.0085"},
+                            {'name': "RTB1", 'pos': "-0.0017 -0.1565 0.0492"},
+                            {'name': "RTB2", 'pos': "0.037 -0.2301 -0.0039"},
+                            {'name': "RTB3", 'pos': "0.0114 -0.2952 0.0554"},
+                            {'name': "RLMAL", 'pos': "-0.005 -0.3888 0.053"},
+                            {'name': "RMMAL", 'pos': "0.006 -0.3888 -0.038"},
+                            {'name': "R_tibial_plateau", 'pos': "-0.0081 -0.017 -0.0015"},
+                            {'name': "GasLat_at_shank_r_site_gaslat_r_side", 'pos': "-0.0512647 -0.0235815 -0.0514609"},
+                            {'name': "GasMed_at_shank_r_site_gasmed_r_side", 'pos': "-0.0226964 -0.1301 0.0498879"},
+                            {'name': "GR_at_condyles_r_site_grac_r_side", 'pos': "-0.0513804 -0.042587 0.0198669"},
+                            {'name': "SM_at_condyles_r_site_semimem_r_side", 'pos': "-0.0387876 -0.035171 -0.0182577"},
+                            {'name': "ST_at_condyles_r_site_semiten_r_side", 'pos': "-0.0428471 -0.0468901 -0.0181631"},
+                            {'name': "BF_at_gastroc_r_site_bfsh_r_side", 'pos': "-0.0687049 -0.0256284 0.0426731"}
+                        ],
+                        'bodies': [
+                            {
+                                'name': "talus_r",
+                                'pos': "-0.01 -0.4 0",
+                                'sites': [{'name': "ankle_r_location", 'pos': "0 0 0"}, {'name': "ankle_r", 'class': "myo_leg_marker"}],
+                                'joints': [{'axis': "-0.105014 -0.174022 0.979126", 'name': "ankle_angle_r", 'pos': "0 0 0", 'range': "-0.698132 0.523599"}],
+                                'geoms': [{'mesh': "r_talus", 'name': "r_talus", 'type': "mesh"}],
+                                'sites': [{'name': "RAJC", 'pos': "0 0 0"}],
+                                'bodies': [
+                                    {
+                                        'name': "calcn_r",
+                                        'pos': "-0.04877 -0.04195 0.00792",
+                                        'inertials': [{'pos': "0.0821377 0.0108024 -0.000944392", 'quat': "0.502987 0.541341 0.493601 0.458598", 'mass': "1.14", 'diaginertia': "0.00313636 0.00297113 0.000941737"}],
+                                        'joints': [{'axis': "0.78718 0.604747 -0.120949", 'name': "subtalar_angle_r", 'pos': "0 0 0", 'range': "-0.349066 0.349066"}],
+                                        'geoms': [{'mesh': "r_foot", 'name': "r_foot", 'type': "mesh"}],
+                                        'sites': [
+                                            {'name': "edl_r-P3", 'pos': "0.0919 0.036 0.0008"},
+                                            {'name': "edl_r-P4", 'pos': "0.1616 0.0055 0.013"},
+                                            {'name': "ehl_r-P4", 'pos': "0.097 0.0389 -0.0211"},
+                                            {'name': "ehl_r-P5", 'pos': "0.1293 0.0309 -0.0257"},
+                                            {'name': "ehl_r-P6", 'pos': "0.1734 0.0139 -0.028"},
+                                            {'name': "fdl_r-P3", 'pos': "0.0436 0.0315 -0.028"},
+                                            {'name': "fdl_r-P4", 'pos': "0.0708 0.0176 -0.0263"},
+                                            {'name': "fdl_r-P5", 'pos': "0.1658 -0.0081 0.0116"},
+                                            {'name': "fhl_r-P3", 'pos': "0.0374 0.0276 -0.0241"},
+                                            {'name': "fhl_r-P4", 'pos': "0.1038 0.0068 -0.0256"},
+                                            {'name': "fhl_r-P5", 'pos': "0.1726 -0.0053 -0.0269"},
+                                            {'name': "gaslat_r-P2", 'pos': "0.0044 0.031 -0.0053"},
+                                            {'name': "gasmed_r-P2", 'pos': "0.0044 0.031 -0.0053"},
+                                            {'name': "perbrev_r-P4", 'pos': "0.0471 0.027 0.0233"},
+                                            {'name': "perbrev_r-P5", 'pos': "0.0677 0.0219 0.0343"},
+                                            {'name': "perlong_r-P4", 'pos': "0.0438 0.023 0.0221"},
+                                            {'name': "perlong_r-P5", 'pos': "0.0681 0.0106 0.0284"},
+                                            {'name': "perlong_r-P6", 'pos': "0.0852 0.0069 0.0118"},
+                                            {'name': "perlong_r-P7", 'pos': "0.1203 0.0085 -0.0184"},
+                                            {'name': "soleus_r-P2", 'pos': "0.0044 0.031 -0.0053"},
+                                            {'name': "tibant_r-P4", 'pos': "0.1166 0.0178 -0.0305"},
+                                            {'name': "tibpost_r-P3", 'pos': "0.0417 0.0334 -0.0286"},
+                                            {'name': "tibpost_r-P4", 'pos': "0.0772 0.0159 -0.0281"},
+                                            {'name': "RCAL", 'pos': "-0.025 0.02 -0.005"},
+                                            {'name': "RTOE", 'pos': "0.205 0.0297 -0.03"},
+                                            {'name': "RMT5", 'pos': "0.145 0.0249 0.059"},
+                                            {'name': "r_foot_touch", 'type': "box", 'pos': "0.09 -.01 0.0", 'size': ".1 .01 .055", 'euler': "0 0 0", 'class': "myo_leg_touch"}
+                                        ],
+                                        'bodies': [
+                                            {
+                                                'name': "toes_r",
+                                                'pos': "0.1788 -0.002 0.00108",
+                                                'sites': [{'name': "toe_r_location", 'pos': "0 0 0"}, {'name': "toe_r", 'class': "myo_leg_marker"}],
+                                                'joints': [{'axis': "0.580954 0 -0.813936", 'name': "mtp_angle_r", 'pos': "0 0 0", 'range': "-0.523599 0.523599"}],
+                                                'geoms': [{'mesh': "r_bofoot", 'name': "r_bofoot", 'type': "mesh"}],
+                                                'sites': [
+                                                    {'name': "r_toes_touch", 'type': "box", 'pos': "0.0275 -.01 0", 'size': ".04 .01 .0675", 'euler': "0 -.7 0", 'class': "myo_leg_touch"},
+                                                    {'name': "edl_r-P5", 'pos': "0.0003 0.0047 0.0153"},
+                                                    {'name': "edl_r-P6", 'pos': "0.0443 -0.0004 0.025"},
+                                                    {'name': "ehl_r-P7", 'pos': "0.0298 0.0041 -0.0245"},
+                                                    {'name': "ehl_r-P8", 'pos': "0.0563 0.0034 -0.0186"},
+                                                    {'name': "fdl_r-P6", 'pos': "-0.0019 -0.0078 0.0147"},
+                                                    {'name': "fdl_r-P7", 'pos': "0.0285 -0.0071 0.0215"},
+                                                    {'name': "fdl_r-P8", 'pos': "0.0441 -0.006 0.0242"},
+                                                    {'name': "fhl_r-P6", 'pos': "0.0155 -0.0064 -0.0265"},
+                                                    {'name': "fhl_r-P7", 'pos': "0.0562 -0.0102 -0.0181"}
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        'name': "patella_r",
+                        'pos': "-0.00809 -0.40796 0",
+                        'joints': [
+                            {'axis': "0 1 0", 'name': "knee_angle_r_beta_translation2", 'pos': "0 0 0", 'range': "-0.0408267 -0.0108281", 'type': "slide"},
+                            {'axis': "1 0 0", 'name': "knee_angle_r_beta_translation1", 'pos': "0 0 0", 'range': "-0.0227731 0.0524192", 'type': "slide"},
+                            {'axis': "0 0 1", 'name': "knee_angle_r_beta_rotation1", 'pos': "0 0 0", 'range': "-1.79241 0.010506"}
+                        ],
+                        'geoms': [{'mesh': "r_patella", 'name': "r_patella", 'type': "mesh"}],
+                        'sites': [
+                            {'name': "recfem_r-P2", 'pos': "0.01 0.049 0.0007"},
+                            {'name': "recfem_r-P3", 'pos': "0.0121 0.0437 -0.001"},
+                            {'name': "recfem_r-P4", 'pos': "0.005 0.0025 0"},
+                            {'name': "vasint_r-P3", 'pos': "0.0058 0.048 -0.0006"},
+                            {'name': "vasint_r-P4", 'pos': "0.005 0.0025 -0.0004"},
+                            {'name': "vaslat_r-P3", 'pos': "0.0103 0.0423 0.0141"},
+                            {'name': "vaslat_r-P4", 'pos': "0.005 0.0025 0.0073"},
+                            {'name': "vasmed_r-P3", 'pos': "0.0063 0.0445 -0.017"},
+                            {'name': "vasmed_r-P4", 'pos': "0.005 0.0025 -0.0085"}
+                        ]
+                    }
+                ]
+            },
+            {
+                'name': "femur_l",
+                'pos': "-0.056276 -0.07849 -0.07726",
+                'sites': [{'name': "hip_l_location", 'pos': "0 0 0"}, {'name': "hip_l", 'class': "myo_leg_marker"}],
+                'inertials': [{'pos': "0 -0.195 0.0005", 'quat': "0.7062 -0.708013 0 0", 'mass': "8.4", 'diaginertia': "0.1694 0.1694 0.0245269"}],
+                'joints': [
+                    {'axis': "0 0 1", 'name': "hip_flexion_l", 'pos': "0 0 0", 'range': "-0.523599 2.0944"},
+                    {'axis': "-1 0 0", 'name': "hip_adduction_l", 'pos': "0 0 0", 'range': "-0.872665 0.523599"},
+                    {'axis': "0 -1 0", 'name': "hip_rotation_l", 'pos': "0 0 0", 'range': "-0.698132 0.698132"}
+                ],
+                'geoms': [
+                    {'mesh': "l_femur", 'name': "l_femur", 'type': "mesh"},
+                    {'name': "Gastroc_at_condyles_l_wrap", 'pos': "0.005 -0.41 0", 'class': "wrap", 'size': "0.025 0.05"},
+                    {'name': "KnExt_at_fem_l_wrap", 'pos': "0.00358828 -0.402732 -0.00209111", 'quat': "0.999192 0.0311532 -0.025365 -0.00079084", 'class': "wrap", 'size': "0.025 0.05"},
+                    {'name': "AB_at_femshaft_l_wrap", 'pos': "0.0146434 -0.112595 -0.023365", 'quat': "0.671362 -0.735248 -0.0628354 0.0688147", 'class': "wrap", 'size': "0.0165 0.035"},
+                    {'name': "AL_at_femshaft_l_wrap", 'pos': "0.0307327 -0.231909 -0.0151137", 'quat': "0.629067 -0.774355 -0.0429971 0.0529276", 'class': "wrap", 'size': "0.0201 0.05"},
+                    {'name': "AMprox_at_femshaft_l_wrap", 'pos': "0.00518299 -0.0728948 -0.025403", 'quat': "0.689646 -0.718132 -0.0645174 0.0671823", 'class': "wrap", 'size': "0.0211 0.035"},
+                    {'name': "AMmid_at_femshaft_l_wrap", 'pos': "0.0230125 -0.160711 -0.0205842", 'quat': "0.690996 -0.719631 -0.0472547 0.0492129", 'class': "wrap", 'size': "0.0214 0.06"},
+                    {'name': "AMdist_at_femshaft_l_wrap", 'pos': "0.0316065 -0.260736 -0.0093646", 'quat': "0.652657 -0.751902 -0.061082 0.0703703", 'class': "wrap", 'size': "0.0218 0.1"},
+                    {'name': "AMisch_at_condyles_l_wrap", 'pos': "-0.0226511 -0.376831 0.00315437", 'quat': "0.638263 -0.734777 0.150578 -0.173347", 'class': "wrap", 'size': "0.04 0.12"},
+                    {'name': "PECT_at_femshaft_l_wrap", 'pos': "0.00608573 -0.0845029 -0.0304405", 'quat': "0.610649 -0.779832 -0.0849157 0.108442", 'class': "wrap", 'size': "0.015 0.025"}
+                ],
+                'sites': [
+                    {'name': "addbrev_l-P2", 'pos': "-0.002 -0.118 -0.0249"},
+                    {'name': "addlong_l-P2", 'pos': "0.0113 -0.2394 -0.0158"},
+                    {'name': "addmagDist_l-P2", 'pos': "0.0112 -0.2625 -0.0193"},
+                    {'name': "addmagIsch_l-P2", 'pos': "0.0048 -0.388 0.0327"},
+                    {'name': "addmagMid_l-P2", 'pos': "0.0024 -0.1624 -0.0292"},
+                    {'name': "addmagProx_l-P2", 'pos': "-0.0153 -0.0789 -0.032"},
+                    {'name': "bfsh_l-P1", 'pos': "0.005 -0.2111 -0.0234"},
+                    {'name': "gaslat_l-P1", 'pos': "-0.003 -0.3814 -0.0277"},
+                    {'name': "gasmed_l-P1", 'pos': "0.008 -0.3788 0.0208"},
+                    {'name': "glmax1_l-P3", 'pos': "-0.0444 -0.0326 -0.0302"},
+                    {'name': "glmax1_l-P4", 'pos': "-0.0277 -0.0566 -0.047"},
+                    {'name': "glmax2_l-P3", 'pos': "-0.045 -0.0584 -0.0252"},
+                    {'name': "glmax2_l-P4", 'pos': "-0.0156 -0.1016 -0.0419"},
+                    {'name': "glmax3_l-P3", 'pos': "-0.0281 -0.1125 -0.0094"},
+                    {'name': "glmax3_l-P4", 'pos': "-0.006 -0.1419 -0.0411"},
+                    {'name': "glmed1_l-P2", 'pos': "-0.0218 -0.0117 -0.0555"},
+                    {'name': "glmed2_l-P2", 'pos': "-0.0258 -0.0058 -0.0527"},
+                    {'name': "glmed3_l-P2", 'pos': "-0.0309 -0.0047 -0.0518"},
+                    {'name': "glmin1_l-P2", 'pos': "-0.0072 -0.0104 -0.056"},
+                    {'name': "glmin2_l-P2", 'pos': "-0.0096 -0.0104 -0.056"},
+                    {'name': "glmin3_l-P2", 'pos': "-0.0135 -0.0083 -0.055"},
+                    {'name': "iliacus_l-P3", 'pos': "-0.0023 -0.0565 -0.0139"},
+                    {'name': "iliacus_l-P4", 'pos': "-0.0122 -0.0637 -0.0196"},
+                    {'name': "piri_l-P3", 'pos': "-0.0148 -0.0036 -0.0437"},
+                    {'name': "psoas_l-P3", 'pos': "-0.0132 -0.0467 -0.0046"},
+                    {'name': "psoas_l-P4", 'pos': "-0.0235 -0.0524 -0.0088"},
+                    {'name': "sart_l-P2", 'pos': "-0.003 -0.3568 0.0421"},
+                    {'name': "tfl_l-P2", 'pos': "0.0294 -0.0995 -0.0597"},
+                    {'name': "tfl_l-P3", 'pos': "0.0107 -0.405 -0.0324"},
+                    {'name': "vasint_l-P1", 'pos': "0.029 -0.1924 -0.031"},
+                    {'name': "vasint_l-P2", 'pos': "0.0335 -0.2084 -0.0285"},
+                    {'name': "vaslat_l-P1", 'pos': "0.0048 -0.1854 -0.0349"},
+                    {'name': "vaslat_l-P2", 'pos': "0.0269 -0.2591 -0.0409"},
+                    {'name': "vasmed_l-P1", 'pos': "0.014 -0.2099 -0.0188"},
+                    {'name': "vasmed_l-P2", 'pos': "0.0356 -0.2769 -0.0009"},
+                    {'name': "LHJC", 'pos': "0 0 0"},
+                    {'name': "LTH1", 'pos': "0.018 -0.15 -0.064"},
+                    {'name': "LTH2", 'pos': "0.08 -0.23 -0.0047"},
+                    {'name': "LTH3", 'pos': "0.01 -0.3 -0.06"},
+                    {'name': "LLFC", 'pos': "0 -0.404 -0.05"},
+                    {'name': "LMFC", 'pos': "0 -0.404 0.05"},
+                    {'name': "KnExt_at_fem_l_site_recfem_l_side", 'pos': "0.028412 -0.418795 0.0326861"},
+                    {'name': "KnExt_at_fem_l_site_vasint_l_side", 'pos': "0.0140493 -0.375075 0.00469312"},
+                    {'name': "KnExt_at_fem_l_site_vaslat_l_side", 'pos': "0.0164816 -0.378983 0.0366504"},
+                    {'name': "KnExt_at_fem_l_site_vasmed_l_side", 'pos': "0.0179815 -0.374402 -0.023524"},
+                    {'name': "AB_at_femshaft_l_site_addbrev_l_side", 'pos': "-0.00249969 -0.126567 -0.0261656"},
+                    {'name': "AL_at_femshaft_l_site_addlong_l_side", 'pos': "0.0113183 -0.263228 -0.00405212"},
+                    {'name': "AMprox_at_femshaft_l_site_addmagProx_l_side", 'pos': "-0.0232677 -0.056978 -0.0222299"},
+                    {'name': "AMmid_at_femshaft_l_site_addmagMid_l_side", 'pos': "-0.0100694 -0.108641 -0.0230602"},
+                    {'name': "AMdist_at_femshaft_l_site_addmagDist_l_side", 'pos': "0.0146959 -0.298529 -0.0158276"},
+                    {'name': "AMisch_at_condyles_l_site_addmagIsch_l_side", 'pos': "-0.0360341 -0.49032 0.0446456"}
+                ],
+                'bodies': [
+                    {
+                        'name': "tibia_l",
+                        'pos': "-4.6e-07 -0.404425 0.00126526",
+                        'sites': [{'name': "knee_l_location", 'pos': "0 0 0"}, {'name': "knee_l", 'class': "myo_leg_marker"}],
+                        'inertials': [{'pos': "-0.005 -0.175 -0.0025", 'quat': "0.712137 -0.701754 0.0200501 0", 'mass': "3.8", 'diaginertia': "0.0771589 0.0771589 0.00690387"}],
+                        'joints': [
+                            {'axis': "-0.992246 -0.123982 -0.00878916", 'name': "knee_angle_l_translation2", 'pos': "0 0 0", 'range': "-0.006792 -7.69254e-11", 'type': "slide"},
+                            {'axis': "-0.124293 0.989762 0.0701648", 'name': "knee_angle_l_translation1", 'pos': "0 0 0", 'range': "9.53733e-08 0.00159883", 'type': "slide"},
+                            {'axis': "3.98373e-10 0.0707131 -0.997497", 'name': "knee_angle_l", 'pos': "0 0 0", 'range': "0 2.0944"},
+                            {'axis': "-0.992246 -0.123982 -0.00878916", 'name': "knee_angle_l_rotation2", 'pos': "0 0 0", 'range': "-0.00167821 0.0335354"},
+                            {'axis': "-0.124293 0.989762 0.0701648", 'name': "knee_angle_l_rotation3", 'pos': "0 0 0", 'range': "-0.262788 -1.08939e-08"}
+                        ],
+                        'geoms': [
+                            {'mesh': "l_tibia", 'name': "l_tibia", 'type': "mesh"},
+                            {'mesh': "l_fibula", 'name': "l_fibula", 'type': "mesh"},
+                            {'name': "GasLat_at_shank_l_wrap", 'pos': "-0.0074 -0.074 0.0033", 'quat': "-0.0298211 -0.737282 -0.655511 -0.160722", 'class': "wrap", 'size': "0.055 0.05"},
+                            {'name': "GasMed_at_shank_l_wrap", 'pos': "-0.0074 -0.074 0.0033", 'quat': "0.073733 -0.735403 -0.67187 -0.048347", 'class': "wrap", 'size': "0.055 0.05"},
+                            {'name': "GR_at_condyles_l_wrap", 'pos': "-0.003 -0.02 0", 'quat': "0.980067 0 0.198669 0", 'class': "wrap", 'size': "0.036 0.05"},
+                            {'name': "SM_at_condyles_l_wrap", 'pos': "-0.001 -0.02 0", 'quat': "0.99875 0 0.0499792 0", 'class': "wrap", 'size': "0.0352 0.05"},
+                            {'name': "ST_at_condyles_l_wrap", 'pos': "-0.002 -0.0205 0", 'quat': "0.995004 0 0.0998334 0", 'class': "wrap", 'size': "0.0425 0.05"},
+                            {'name': "BF_at_gastroc_l_wrap", 'pos': "-0.058 -0.06 0", 'class': "wrap", 'size': "0.03 0.075"}
+                        ],
+                        'sites': [
+                            {'name': "bflh_l-P2", 'pos': "-0.0337 -0.035 -0.0253"},
+                            {'name': "bflh_l-P3", 'pos': "-0.0287 -0.0455 -0.0303"},
+                            {'name': "bfsh_l-P2", 'pos': "-0.0301 -0.0419 -0.0318"},
+                            {'name': "edl_l-P1", 'pos': "-0.016 -0.1157 -0.0205"},
+                            {'name': "edl_l-P2", 'pos': "0.0164 -0.376 -0.0112"},
+                            {'name': "ehl_l-P1", 'pos': "-0.014 -0.155 -0.0189"},
+                            {'name': "ehl_l-P2", 'pos': "0.0071 -0.2909 -0.0164"},
+                            {'name': "ehl_l-P3", 'pos': "0.02 -0.3693 0.0028"},
+                            {'name': "fdl_l-P1", 'pos': "-0.0023 -0.1832 0.0018"},
+                            {'name': "fdl_l-P2", 'pos': "-0.0176 -0.3645 0.0124"},
+                            {'name': "fhl_l-P1", 'pos': "-0.031 -0.2163 -0.02"},
+                            {'name': "fhl_l-P2", 'pos': "-0.0242 -0.3671 0.0076"},
+                            {'name': "grac_l-P2", 'pos': "-0.0184 -0.0476 0.0296"},
+                            {'name': "grac_l-P3", 'pos': "0.0018 -0.0696 0.0157"},
+                            {'name': "perbrev_l-P1", 'pos': "-0.0243 -0.2532 -0.0251"},
+                            {'name': "perbrev_l-P2", 'pos': "-0.0339 -0.3893 -0.0249"},
+                            {'name': "perbrev_l-P3", 'pos': "-0.0285 -0.4004 -0.0255"},
+                            {'name': "perlong_l-P1", 'pos': "-0.02 -0.1373 -0.0282"},
+                            {'name': "perlong_l-P2", 'pos': "-0.0317 -0.39 -0.0237"},
+                            {'name': "perlong_l-P3", 'pos': "-0.0272 -0.4014 -0.024"},
+                            {'name': "recfem_l-P5", 'pos': "0.0326 -0.0631 0.0005"},
+                            {'name': "sart_l-P3", 'pos': "-0.0251 -0.0401 0.0365"},
+                            {'name': "sart_l-P4", 'pos': "-0.0159 -0.0599 0.0264"},
+                            {'name': "sart_l-P5", 'pos': "0.0136 -0.081 0.0026"},
+                            {'name': "semimem_l-P2", 'pos': "-0.029 -0.0417 0.0196"},
+                            {'name': "semiten_l-P2", 'pos': "-0.0312 -0.0508 0.0229"},
+                            {'name': "semiten_l-P3", 'pos': "0.0019 -0.0773 0.0117"},
+                            {'name': "soleus_l-P1", 'pos': "-0.0076 -0.0916 -0.0098"},
+                            {'name': "tfl_l-P4", 'pos': "0.0108 -0.041 -0.0346"},
+                            {'name': "tibant_l-P1", 'pos': "0.0154 -0.1312 -0.0162"},
+                            {'name': "tibant_l-P2", 'pos': "0.0251 -0.1906 -0.0128"},
+                            {'name': "tibant_l-P3", 'pos': "0.0233 -0.3659 0.0132"},
+                            {'name': "tibpost_l-P1", 'pos': "-0.0041 -0.1304 -0.0103"},
+                            {'name': "tibpost_l-P2", 'pos': "-0.0164 -0.3655 0.0175"},
+                            {'name': "vasint_l-P5", 'pos': "0.0326 -0.0632 -0.0004"},
+                            {'name': "vaslat_l-P5", 'pos': "0.0325 -0.0634 -0.0051"},
+                            {'name': "vasmed_l-P5", 'pos': "0.0319 -0.0636 0.0068"},
+                            {'name': "LKJC", 'pos': "0.0017 -0.0024 0.0085"},
+                            {'name': "LTB1", 'pos': "-0.0017 -0.1565 -0.0492"},
+                            {'name': "LTB2", 'pos': "0.037 -0.2301 0.0039"},
+                            {'name': "LTB3", 'pos': "0.0114 -0.2952 -0.0554"},
+                            {'name': "LLMAL", 'pos': "-0.005 -0.3888 -0.053"},
+                            {'name': "LMMAL", 'pos': "0.006 -0.3888 0.038"},
+                            {'name': "L_tibial_plateau", 'pos': "-0.0081 -0.017 0.0015"},
+                            {'name': "GasLat_at_shank_l_site_gaslat_l_side", 'pos': "-0.0512647 -0.0235815 0.0514609"},
+                            {'name': "GasMed_at_shank_l_site_gasmed_l_side", 'pos': "-0.0226964 -0.1301 -0.0498879"},
+                            {'name': "GR_at_condyles_l_site_grac_l_side", 'pos': "-0.0513804 -0.042587 -0.0198669"},
+                            {'name': "SM_at_condyles_l_site_semimem_l_side", 'pos': "-0.0387876 -0.035171 0.0182577"},
+                            {'name': "ST_at_condyles_l_site_semiten_l_side", 'pos': "-0.0428471 -0.0468901 0.0181631"},
+                            {'name': "BF_at_gastroc_l_site_bfsh_l_side", 'pos': "-0.0687049 -0.0256284 -0.0426731"}
+                        ],
+                        'bodies': [
+                            {
+                                'name': "talus_l",
+                                'pos': "-0.01 -0.4 0",
+                                'sites': [{'name': "ankle_l_location", 'pos': "0 0 0"}, {'name': "ankle_l", 'class': "myo_leg_marker"}],
+                                'joints': [{'axis': "0.105014 0.174022 0.979126", 'name': "ankle_angle_l", 'pos': "0 0 0", 'range': "-0.698132 0.523599"}],
+                                'geoms': [{'mesh': "l_talus", 'name': "l_talus", 'type': "mesh"}],
+                                'sites': [{'name': "LAJC", 'pos': "0 0 0"}],
+                                'bodies': [
+                                    {
+                                        'name': "calcn_l",
+                                        'pos': "-0.04877 -0.04195 -0.00792",
+                                        'inertials': [{'pos': "0.0821377 0.0108024 0.000944392", 'quat': "0.541341 0.502987 0.458598 0.493601", 'mass': "1.14", 'diaginertia': "0.00313636 0.00297113 0.000941737"}],
+                                        'joints': [{'axis': "-0.78718 -0.604747 -0.120949", 'name': "subtalar_angle_l", 'pos': "0 0 0", 'range': "-0.349066 0.349066"}],
+                                        'geoms': [{'mesh': "l_foot", 'name': "l_foot", 'type': "mesh"}],
+                                        'sites': [
+                                            {'name': "edl_l-P3", 'pos': "0.0919 0.036 -0.0008"},
+                                            {'name': "edl_l-P4", 'pos': "0.1616 0.0055 -0.013"},
+                                            {'name': "ehl_l-P4", 'pos': "0.097 0.0389 0.0211"},
+                                            {'name': "ehl_l-P5", 'pos': "0.1293 0.0309 0.0257"},
+                                            {'name': "ehl_l-P6", 'pos': "0.1734 0.0139 0.028"},
+                                            {'name': "fdl_l-P3", 'pos': "0.0436 0.0315 0.028"},
+                                            {'name': "fdl_l-P4", 'pos': "0.0708 0.0176 0.0263"},
+                                            {'name': "fdl_l-P5", 'pos': "0.1658 -0.0081 -0.0116"},
+                                            {'name': "fhl_l-P3", 'pos': "0.0374 0.0276 0.0241"},
+                                            {'name': "fhl_l-P4", 'pos': "0.1038 0.0068 0.0256"},
+                                            {'name': "fhl_l-P5", 'pos': "0.1726 -0.0053 0.0269"},
+                                            {'name': "gaslat_l-P2", 'pos': "0.0044 0.031 0.0053"},
+                                            {'name': "gasmed_l-P2", 'pos': "0.0044 0.031 0.0053"},
+                                            {'name': "perbrev_l-P4", 'pos': "0.0471 0.027 -0.0233"},
+                                            {'name': "perbrev_l-P5", 'pos': "0.0677 0.0219 -0.0343"},
+                                            {'name': "perlong_l-P4", 'pos': "0.0438 0.023 -0.0221"},
+                                            {'name': "perlong_l-P5", 'pos': "0.0681 0.0106 -0.0284"},
+                                            {'name': "perlong_l-P6", 'pos': "0.0852 0.0069 -0.0118"},
+                                            {'name': "perlong_l-P7", 'pos': "0.1203 0.0085 0.0184"},
+                                            {'name': "soleus_l-P2", 'pos': "0.0044 0.031 0.0053"},
+                                            {'name': "tibant_l-P4", 'pos': "0.1166 0.0178 0.0305"},
+                                            {'name': "tibpost_l-P3", 'pos': "0.0417 0.0334 0.0286"},
+                                            {'name': "tibpost_l-P4", 'pos': "0.0772 0.0159 0.0281"},
+                                            {'name': "LCAL", 'pos': "-0.025 0.02 0.005"},
+                                            {'name': "LTOE", 'pos': "0.205 0.0297 0.03"},
+                                            {'name': "LMT5", 'pos': "0.145 0.0249 -0.059"},
+                                            {'name': "l_foot_touch", 'type': "box", 'pos': "0.09 -.01 0.0", 'size': ".1 .01 .055", 'euler': "0 0 0", 'class': "myo_leg_touch"}
+                                        ],
+                                        'bodies': [
+                                            {
+                                                'name': "toes_l",
+                                                'pos': "0.1788 -0.002 -0.00108",
+                                                'sites': [{'name': "toe_l_location", 'pos': "0 0 0"}, {'name': "toe_l", 'class': "myo_leg_marker"}],
+                                                'joints': [{'axis': "-0.580954 0 -0.813936", 'name': "mtp_angle_l", 'pos': "0 0 0", 'range': "-0.523599 0.523599"}],
+                                                'geoms': [{'mesh': "l_bofoot", 'name': "l_bofoot", 'type': "mesh"}],
+                                                'sites': [
+                                                    {'name': "l_toes_touch", 'type': "box", 'pos': "0.0275 -.01 -.000", 'size': ".04 .01 .0675", 'euler': "0 .7 0", 'class': "myo_leg_touch"},
+                                                    {'name': "edl_l-P5", 'pos': "0.0003 0.0047 -0.0153"},
+                                                    {'name': "edl_l-P6", 'pos': "0.0443 -0.0004 -0.025"},
+                                                    {'name': "ehl_l-P7", 'pos': "0.0298 0.0041 0.0245"},
+                                                    {'name': "ehl_l-P8", 'pos': "0.0563 0.0034 0.0186"},
+                                                    {'name': "fdl_l-P6", 'pos': "-0.0019 -0.0078 -0.0147"},
+                                                    {'name': "fdl_l-P7", 'pos': "0.0285 -0.0071 -0.0215"},
+                                                    {'name': "fdl_l-P8", 'pos': "0.0441 -0.006 -0.0242"},
+                                                    {'name': "fhl_l-P6", 'pos': "0.0155 -0.0064 0.0265"},
+                                                    {'name': "fhl_l-P7", 'pos': "0.0562 -0.0102 0.0181"}
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        'name': "patella_l",
+                        'pos': "-0.00809 -0.40796 0",
+                        'joints': [
+                            {'axis': "0 1 0", 'name': "knee_angle_l_beta_translation2", 'pos': "0 0 0", 'range': "-0.0408267 -0.0108281", 'type': "slide"},
+                            {'axis': "1 0 0", 'name': "knee_angle_l_beta_translation1", 'pos': "0 0 0", 'range': "-0.0227731 0.0524192", 'type': "slide"},
+                            {'axis': "0 0 1", 'name': "knee_angle_l_beta_rotation1", 'pos': "0 0 0", 'range': "-1.79241 0.010506"}
+                        ],
+                        'geoms': [{'mesh': "l_patella", 'name': "l_patella", 'type': "mesh"}],
+                        'sites': [
+                            {'name': "recfem_l-P2", 'pos': "0.01 0.049 -0.0007"},
+                            {'name': "recfem_l-P3", 'pos': "0.0121 0.0437 0.001"},
+                            {'name': "recfem_l-P4", 'pos': "0.005 0.0025 0"},
+                            {'name': "vasint_l-P3", 'pos': "0.0058 0.048 0.0006"},
+                            {'name': "vasint_l-P4", 'pos': "0.005 0.0025 0.0004"},
+                            {'name': "vaslat_l-P3", 'pos': "0.0103 0.0423 -0.0141"},
+                            {'name': "vaslat_l-P4", 'pos': "0.005 0.0025 -0.0073"},
+                            {'name': "vasmed_l-P3", 'pos': "0.0063 0.0445 0.017"},
+                            {'name': "vasmed_l-P4", 'pos': "0.005 0.0025 0.0085"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+  ]
+
+# Add all bodies to the worldbody
+for body in bodies_data:
+    add_body(worldbody_node, body)
 
 
 
@@ -289,13 +1190,6 @@ for site in sites_leftankle:
     site_node = ET.SubElement(tendon_leftankle_node, 'site')
     site_node.set('site', site)
 
-#Worldbody
-emptywmuscle_path = 'emptywmuscle.xml'
-tree = ET.parse(emptywmuscle_path)
-emptywmuscle_root = tree.getroot()
-worldbody_element = emptywmuscle_root.find('worldbody')
-worldbody_new = ET.SubElement(root,'worldbody')  
-worldbody_new.append(worldbody_element) 
 
 # addbrev_r_tendon
 tendon_addbrev_r_node = ET.SubElement(tendon_node, 'spatial')

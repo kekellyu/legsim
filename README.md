@@ -10,7 +10,9 @@
 
 (4) **emptywmuscle.xml:** xml file for exoskeleton model with muscle model, connecting from exoskeleton to muscle, without human body, limited tendon length 
 
-(5) **emptywmuscle.py:** python script for exoskeleton model with muscle model, without human body, limited tendon length
+(5) **generateemptywm.py:** python script for exoskeleton model with muscle model, without human body, limited tendon length
+
+(6) **generate_mujoco_model.xml:** generated script from python script for exoskeleton model with muscle model, without human body, limited tendon length
 
 (6) **exomujoco.py:** python script for exoskeleton model with muscle model, with human body, no limit on tendon length
 
@@ -19,3 +21,11 @@
 (8) **exotendon.xml:** manually adding four tendons on each front and back of the hip and knee of the left and right leg
 
 (9) **exowmuscle.xml:** xml file for exoskeleton model with muscle model, connecting from the muscle model to exoskeleton model, with human body, unlimited tendon length 
+
+(10) **testversion.py:** draft file for python script
+
+### Parameters for the model
+
+(1) thigh length: 
+
+(2) shin length: 
