@@ -1428,8 +1428,9 @@ def mod_mujoco_xml(obj, mujocoXMLfile, mesh_dir, whichloaded,emptyXMLfile):
     tree.write(mujocoXMLfile, encoding='utf-8', xml_declaration=True)
 
 
-    xml_str = ET.tostring(root, encoding="unicode", method="xml")
-    xml_str = xml.dom.minidom.parseString(xml_str).toprettyxml(indent="  ", newl="\n")
+xml_str = ET.tostring(root, encoding="unicode", method="xml")
+xml_str = xml.dom.minidom.parseString(xml_str).toprettyxml(indent="  ", newl="\n")
 
-    with open("emptymujoco_model.xml", "w") as f:
-        f.write(xml_str)
+with open("emptymujoco_model.xml", "w") as f:
+    f.write(xml_str)
+    

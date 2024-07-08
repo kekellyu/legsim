@@ -1010,7 +1010,7 @@
         <spatial name="glmax1_r_tendon" springlength="0.0488409">
             <site site="glmax1_r-P1"/>
             <site site="glmax1_r-P2"/>
-            <geom geom="Gmax1_at_pelvis_r_wrap" sidesite="Gmax1_at_pelvis_r_site_glmax1_r_side"/>
+            <!-- <geom geom="Gmax1_at_pelvis_r_wrap" sidesite="Gmax1_at_pelvis_r_site_glmax1_r_side"/> -->
             <site site="glmax1_r-P3"/>
             <site site="glmax1_r-P4"/>
         </spatial>

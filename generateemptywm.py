@@ -1,13 +1,69 @@
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
 
+#Positions
+
+#Exo Positions
+Exotorso_pos=[0,0,1]
+ExoLeftFrontalHip_pos=[0,0.089,0]
+ExoLeftTransverseHipLink_pos=[-0.135,0.169,0]
+ExoLeftSagittalHipLink_pos=[0.135,0,0]
+ExoLeftSagittalKneeLink_pos=[0,0.0049114,-0.38]
+ExoLeftSagittalAnkleLink_pos=[0,-0.16942,-0.408]
+ExoRightFrontalHip_pos=[0,-0.089,0]
+ExoRightTransverseHipLink_pos=[-0.135,-0.169,0]
+ExoRightSagittalHipLink_pos=[0.135,0,0]
+ExoRightSagittalKneeLink_pos=[0,-0.0049114,-0.38]
+ExoRightSagittalAnkleLink_pos=[0,0.16942,-0.408]
+
+#Muscle Positions
+Muscletorso_pos=[0,0,1]
+Musclefemur_r_pos=[-0.056276,-0.07849,0.07726]
+Muscletibia_r_pos=[-4.6e-07,-0.404425,-0.00126526]
+Muscletalus_r_pos=[-0.01,-0.4,0]
+Musclecalcn_r_pos=[-0.04877,-0.04195,0.00792]
+Muscletoes_r_pos=[0.1788,-0.002,0.00108]
+Musclepatella_r_pos=[-0.00809,-0.40796,0]
+Musclefemur_l_pos=[-0.056276,-0.07849,-0.07726]
+Muscletibia_l_pos=[-4.6e-07,-0.404425,0.00126526]
+Muscletalus_l_pos=[-0.01,-0.4,0]
+Musclecalcn_l_pos=[-0.04877,-0.04195,-0.00792]
+Muscletoes_l_pos=[0.1788,-0.002,-0.00108]
+Musclepatella_l_pos=[-0.00809,-0.40796,0]
+
+#Masses
+
+#Exo Mass
+Exotorso_mass=[16.4638]
+ExoLeftFrontalHip_mass=[3.6752]
+ExoLeftTransverseHipLink_mass=[4.4176]
+ExoLeftSagittalHipLink_mass=[8.9468]
+ExoLeftSagittalKneeLink_mass=[10.9753]
+ExoLeftSagittalAnkleLink_mass=[1.6764]
+ExoLeftHenkeAnkleLink_mass=[3.2239]
+ExoRightFrontalHip_mass=[3.6752]
+ExoRightTransverseHipLink_mass=[4.4176]
+ExoRightSagittalHipLink_mass=[8.9468]
+ExoRightSagittalKneeLink_mass=[10.9753]
+ExoRightSagittalAnkleLink_mass=[1.6764]
+ExoRightHenkeAnkleLink_mass=[3.2239]
+
+#Muscle Mass
+Muscletorso_mass=[10.96]
+Musclefemur_r_mass=[8.4]
+Muscletibia_r_mass=[3.8]
+Musclecalcn_r_mass=[1.14]
+Musclefemur_l_mass=[8.4]
+Muscletibia_l_mass=[3.8]
+Musclecalcn_l_mass=[1.14]
+
 # tree = ET.parse('emptywmuscle.xml')
-root = ET.Element("mujoco_model")
-root.set('mujoco','Amy_Li_emptyExo')
+root = ET.Element("mujoco")
+root.set('model','Amy_Li_emptyExo')
 
 compiler_node = ET.SubElement(root,'compiler')
 compiler_node.set('angle', 'radian')
-compiler_node.set('autolimites', 'true')
+compiler_node.set('autolimits', 'true')
 
 size_node = ET.SubElement(root,'size')
 size_node.set('njmax', '500')
@@ -274,7 +330,7 @@ def add_body(parent_node, body_data):
 bodies_data = [
     {
         'name': "torso",
-        'pos': "0 0 1",
+        'pos': " ".join(map(str,Exotorso_pos)),
         'sites': [
             {'name': "pelvissite", 'pos': "0 0 0"},
             {'name': "LeftHipBack", 'pos': "-0.08 0.08 -0.04"},
@@ -285,86 +341,164 @@ bodies_data = [
             {'group': "3", 'name': "thorax_imu", 'pos': "-0.14 0 0.5", 'quat': "0.70711 0 0.70711 0", 'size': ".01"}
         ],
         'inertials': [
-            {'diaginertia': "0.6633 0.55313 0.18091", 'mass': "16.4638", 'pos': "-0.18186 -0.00011 0.13746"}
+            {'diaginertia': "0.6633 0.55313 0.18091", 'mass': " ".join(map(str,Exotorso_mass)), 'pos': "-0.18186 -0.00011 0.13746"}
         ],
         'geoms': [
             {'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "PelvisLink", 'type': "mesh"}
         ],
         'bodies': [
+                {
+                    'name': "LeftFrontalHipLink",
+                    'pos': " ".join(map(str,ExoLeftFrontalHip_pos)),
+                    'sites': [{'name': "LeftFrontalHipSite", 'pos': "0 0 0"}],
+                    'inertials': [{'diaginertia': "0.036612 0.0349177 0.00740632", 'mass': " ".join(map(str,ExoLeftFrontalHip_mass)), 'pos': "-0.18696 0.095567 0.018365", 'quat': "0.453895 0.291805 -0.721185 0.43442"}],
+                    'joints': [{'axis': "1 0 0", 'name': "LeftFrontalHipJoint", 'pos': "0 0 0", 'range': "-0.2 0.3"}],
+                    'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftFrontalHipLink", 'type': "mesh"}],
+                    'bodies': [
+                        {
+                            'name': "LeftTransverseHipLink",
+                            'pos': " ".join(map(str,ExoLeftTransverseHipLink_pos)),
+                            'sites': [{'name': "LeftTransverseHipSite", 'pos': "0 0 0"}],
+                            'inertials': [{'diaginertia': "0.0259937 0.0259386 0.00622165", 'mass': " ".join(map(str,ExoLeftTransverseHipLink_mass)), 'pos': "0.069171 -0.008671 0.004224", 'quat': "-0.114265 0.696606 -0.205723 0.677762"}],
+                            'joints': [{'axis': "0 0 1", 'name': "LeftTransverseHipJoint", 'pos': "0 0 0", 'range': "-0.2 0.3"}],
+                            'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftTransverseHipLink", 'type': "mesh"}],
+                            'bodies': [
+                                {
+                                    'name': "LeftSagittalHipLink",
+                                    'pos': " ".join(map(str,ExoLeftSagittalHipLink_pos)),
+                                    'sites': [{'name': "LeftSagittalHipSite", 'pos': "0 0 0"}],
+                                    'inertials': [{'diaginertia': "0.17014 0.155437 0.0522649", 'mass': " ".join(map(str,ExoLeftSagittalHipLink_mass)), 'pos': "0.022786 -0.018046 -0.18739", 'quat': "0.518047 -0.0483842 0.0468759 0.852695"}],
+                                    'joints': [{'axis': "0 1 0", 'name': "LeftSagittalHipJoint", 'pos': "0 0 0", 'range': "-2 0.3"}],
+                                    'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftSagittalHipLink", 'type': "mesh"}],
+                                    'bodies': [
+                                        {
+                                            'name': "LeftSagittalKneeLink",
+                                            'pos': " ".join(map(str,ExoLeftSagittalKneeLink_pos)),
+                                            'inertials': [{'diaginertia': "0.292576 0.283039 0.0639544", 'mass': " ".join(map(str,ExoLeftSagittalKneeLink_mass)),'pos': "-0.063222 -0.1107 -0.20848", 'quat': "0.96457 -0.15051 0.183544 -0.115166"}],
+                                            'joints': [{'axis': "0 1 0", 'name': "LeftSagittalKneeJoint", 'pos': "0 0 0", 'range': "0 1.9"}],
+                                            'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftSagittalKneeLink", 'type': "mesh"}],
+                                            'sites': [
+                                                {'group': "3", 'name': "left_tibia_imu", 'pos': "-0.14067 -0.074092 -0.39348", 'quat': "2.3108e-07 -2.3108e-07 0.70711 -0.70711", 'size': ".01"},
+                                                {'name': "LeftSagittalKneeFront", 'pos': "0.06 0.013 0"},
+                                                {'name': "LeftSagittalKneeBack", 'pos': "-0.06 0.013 0"},
+                                                {'name': "LeftKneeFront", 'pos': "0.015 -0.16 -0.03"},
+                                                {'name': "LeftKneeBack", 'pos': "-0.07 -0.16 -0.03"},
+                                                {'name': "LeftSagittalKneeSite", 'pos': "0 0 0"}
+                                            ],
+                                            'bodies': [
+                                                {
+                                                    'name': "LeftSagittalAnkleLink",
+                                                    'pos': " ".join(map(str,ExoLeftSagittalAnkleLink_pos)),
+                                                    'quat': "0.997564 0 0 0.0697583",
+                                                    'sites': [{'name': "LeftSagittalAnkleSite", 'pos': "0 0 0"}],
+                                                    'inertials': [{'diaginertia': "0.00498533 0.00498533 0.00498533", 'mass': " ".join(map(str,ExoLeftSagittalAnkleLink_mass)), 'pos': "-0.043917 0.056353 -0.038953", 'quat': "0.390876 0.856905 0.0797629 -0.326448"}],
+                                                    'joints': [{'axis': "0 1 0", 'name': "LeftSagittalAnkleJoint", 'pos': "0 0 0", 'range': "-0.3 0.2"}],
+                                                    'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftSagittalAnkleLink", 'type': "mesh"}],
+                                                    'bodies': [
+                                                        {
+                                                            'name': "LeftHenkeAnkleLink",
+                                                            'pos': "0 0 0",
+                                                            'inertials': [{'diaginertia': "0.0289377 0.0289377 0.0289377", 'mass': " ".join(map(str,ExoLeftHenkeAnkleLink_mass)), 'pos': "-0.053246 2e-06 -0.11063", 'quat': "0.280854 0.443077 0.216278 0.823424"}],
+                                                            'joints': [{'axis': "0.788011 0 0.615661", 'name': "LeftHenkeAnkleJoint", 'pos': "0 0 0", 'range': "-0.3 0.3"}],
+                                                            'geoms': [
+                                                                {'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftHenkeAnkleLink", 'quat': "0.945518 0 -0.32557 0", 'type': "mesh"},
+                                                                {'condim': "4", 'friction': "1", 'name': "left_sole", 'pos': "0.06 -3.3e-05 -0.15975", 'quat': "0.707105 0 -0.707108 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.1375", 'type': "box"},
+                                                                {'condim': "4", 'friction': "1", 'name': "left_toe", 'pos': "0.2195 0 -0.1537", 'quat': "0.6018 0 -0.7986 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.022", 'type': "box"},
+                                                                {'condim': "4", 'friction': "1", 'name': "left_heel", 'pos': "-0.0940 0 -0.1566", 'quat': "0.7716 0 -0.6361 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.0165", 'type': "box"}
+                                                            ],
+                                                            'sites': [
+                                                                {'name': "LeftHenkeAnkleSite", 'pos': "0 0 0"},
+                                                                {'name': "LeftHenkeAnkleFront", 'pos': "0.033 0.1 0"},
+                                                                {'name': "LeftHenkeAnkleBack", 'pos': "-0.033 0.1 0"},
+                                                                {'name': "LeftAnkleFront", 'pos': "0.025 0 -0.1"},
+                                                                {'name': "LeftAnkleBack", 'pos': "-0.04 0 -0.1"},
+                                                                {'name': "left_foot_imu", 'pos': "-0.036966 0.015 -0.13705", 'quat': "-1.6377e-07 -0.94552 -5.639e-08 0.32557", 'size': ".01"},
+                                                                {'group': "2", 'name': "opto1", 'pos': "0.17825 0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
+                                                                {'group': "2", 'name': "opto2", 'pos': "0.17825 -0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
+                                                                {'group': "2", 'name': "opto3", 'pos': "-0.063753 0.02625 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
+                                                                {'group': "2", 'name': "opto4", 'pos': "-0.063753 -0.02625 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"}
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
             {
-                'name': "LeftFrontalHipLink",
-                'pos': "0 0.089 0",
-                'sites': [{'name': "LeftFrontalHipSite", 'pos': "0 0 0"}],
-                'inertials': [{'diaginertia': "0.036612 0.0349177 0.00740632", 'mass': "3.6752", 'pos': "-0.18696 0.095567 0.018365", 'quat': "0.453895 0.291805 -0.721185 0.43442"}],
-                'joints': [{'axis': "1 0 0", 'name': "LeftFrontalHipJoint", 'pos': "0 0 0", 'range': "-0.2 0.3"}],
-                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftFrontalHipLink", 'type': "mesh"}],
+                'name': "RightFrontalHipLink",
+                'pos': " ".join(map(str,ExoRightFrontalHip_pos)),
+                'sites': [{'name': "RightFrontalHipSite", 'pos': "0 0 0"}],
+                'inertials': [{'diaginertia': "0.0365973 0.0349128 0.00740791", 'mass': " ".join(map(str,ExoRightFrontalHip_mass)), 'pos': "-0.18696 -0.095567 0.01843", 'quat': "0.292578 0.454629 -0.434128 0.720585"}],
+                'joints': [{'axis': "1 0 0", 'name': "RightFrontalHipJoint", 'pos': "0 0 0", 'range': "-0.3 0.2"}],
+                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightFrontalHipLink", 'type': "mesh"}],
                 'bodies': [
                     {
-                        'name': "LeftTransverseHipLink",
-                        'pos': "-0.135 0.169 0",
-                        'sites': [{'name': "LeftTransverseHipSite", 'pos': "0 0 0"}],
-                        'inertials': [{'diaginertia': "0.0259937 0.0259386 0.00622165", 'mass': "4.4176", 'pos': "0.069171 -0.008671 0.004224", 'quat': "-0.114265 0.696606 -0.205723 0.677762"}],
-                        'joints': [{'axis': "0 0 1", 'name': "LeftTransverseHipJoint", 'pos': "0 0 0", 'range': "-0.2 0.3"}],
-                        'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftTransverseHipLink", 'type': "mesh"}],
+                        'name': "RightTransverseHipLink",
+                        'pos': " ".join(map(str,ExoRightTransverseHipLink_pos)),
+                        'sites': [{'name': "RightTransverseHipSite", 'pos': "0 0 0"}],
+                        'inertials': [{'diaginertia': "0.0259901 0.0259386 0.00622121", 'mass': " ".join(map(str,ExoRightTransverseHipLink_mass)), 'pos': "0.069166 0.008663 0.004212", 'quat': "0.111328 0.697511 0.202883 0.678177"}],
+                        'joints': [{'axis': "0 0 1", 'name': "RightTransverseHipJoint", 'pos': "0 0 0", 'range': "-0.3 0.2"}],
+                        'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightTransverseHipLink", 'type': "mesh"}],
                         'bodies': [
                             {
-                                'name': "LeftSagittalHipLink",
-                                'pos': "0.135 0 0",
-                                'sites': [{'name': "LeftSagittalHipSite", 'pos': "0 0 0"}],
-                                'inertials': [{'diaginertia': "0.17014 0.155437 0.0522649", 'mass': "8.9468", 'pos': "0.022786 -0.018046 -0.18739", 'quat': "0.518047 -0.0483842 0.0468759 0.852695"}],
-                                'joints': [{'axis': "0 1 0", 'name': "LeftSagittalHipJoint", 'pos': "0 0 0", 'range': "-2 0.3"}],
-                                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftSagittalHipLink", 'type': "mesh"}],
+                                'name': "RightSagittalHipLink",
+                                'pos': " ".join(map(str,ExoRightSagittalHipLink_pos)),
+                                'sites': [{'name': "RightSagittalHipSite", 'pos': "0 0 0"}],
+                                'inertials': [{'diaginertia': "0.17014 0.155437 0.0522649", 'mass': " ".join(map(str,ExoRightSagittalHipLink_mass)), 'pos': "0.022786 0.018046 -0.18739", 'quat': "0.852695 0.0468759 -0.0483842 0.518047"}],
+                                'joints': [{'axis': "0 1 0", 'name': "RightSagittalHipJoint", 'pos': "0 0 0", 'range': "-2 0.3"}],
+                                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightSagittalHipLink", 'type': "mesh"}],
                                 'bodies': [
                                     {
-                                        'name': "LeftSagittalKneeLink",
-                                        'pos': "0 0.0049114 -0.38",
+                                        'name': "RightSagittalKneeLink",
+                                        'pos': " ".join(map(str,ExoRightSagittalKneeLink_pos)),
+                                        'inertials': [{'diaginertia': "0.292576 0.283039 0.0639544", 'mass': " ".join(map(str,ExoRightSagittalKneeLink_mass)), 'pos': "-0.063222 0.1107 -0.20848", 'quat': "0.96457 0.15051 0.183544 0.115166"}],
+                                        'joints': [{'axis': "0 1 0", 'name': "RightSagittalKneeJoint", 'pos': "0 0 0", 'range': "0 1.9"}],
+                                        'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightSagittalKneeLink", 'type': "mesh"}],
                                         'sites': [
-                                            {'name': "LeftSagittalKneeFront", 'pos': "0.06 0.013 0"},
-                                            {'name': "LeftSagittalKneeBack", 'pos': "-0.06 0.013 0"},
-                                            {'name': "LeftKneeFront", 'pos': "0.015 -0.16 -0.03"},
-                                            {'name': "LeftKneeBack", 'pos': "-0.07 -0.16 -0.03"},
-                                            {'name': "LeftSagittalKneeSite", 'pos': "0 0 0"}
-                                        ],
-                                        'inertials': [{'diaginertia': "0.292576 0.283039 0.0639544", 'mass': "10.9753", 'pos': "-0.063222 -0.1107 -0.20848", 'quat': "0.96457 -0.15051 0.183544 -0.115166"}],
-                                        'joints': [{'axis': "0 1 0", 'name': "LeftSagittalKneeJoint", 'pos': "0 0 0", 'range': "0 1.9"}],
-                                        'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftSagittalKneeLink", 'type': "mesh"}],
-                                        'sites': [
-                                            {'group': "3", 'name': "left_tibia_imu", 'pos': "-0.14067 -0.074092 -0.39348", 'quat': "2.3108e-07 -2.3108e-07 0.70711 -0.70711", 'size': ".01"}
+                                            {'group': "3", 'name': "right_tibia_imu", 'pos': "-0.11573 0.074342 -0.39348", 'quat': "0.70711 -0.70711 0 0", 'size': ".01"},
+                                            {'name': "RightSagittalKneeFront", 'pos': "0.06 0.013 0"},
+                                            {'name': "RightSagittalKneeBack", 'pos': "-0.06 0.013 0"},
+                                            {'name': "RightKneeFront", 'pos': "0.015 0.16 -0.03"},
+                                            {'name': "RightKneeBack", 'pos': "-0.07 0.16 -0.03"},
+                                            {'name': "RightSagittalKneeSite", 'pos': "0 0 0"}
                                         ],
                                         'bodies': [
                                             {
-                                                'name': "LeftSagittalAnkleLink",
-                                                'pos': "0 -0.16942 -0.408",
-                                                'quat': "0.997564 0 0 0.0697583",
-                                                'sites': [{'name': "LeftSagittalAnkleSite", 'pos': "0 0 0"}],
-                                                'inertials': [{'diaginertia': "0.00498533 0.00498533 0.00498533", 'mass': "1.6764", 'pos': "-0.043917 0.056353 -0.038953", 'quat': "0.390876 0.856905 0.0797629 -0.326448"}],
-                                                'joints': [{'axis': "0 1 0", 'name': "LeftSagittalAnkleJoint", 'pos': "0 0 0", 'range': "-0.3 0.2"}],
-                                                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftSagittalAnkleLink", 'type': "mesh"}],
+                                                'name': "RightSagittalAnkleLink",
+                                                'pos': " ".join(map(str,ExoRightSagittalAnkleLink_pos)),
+                                                'quat': "0.997564 0 0 -0.0697583",
+                                                'sites': [{'name': "RightSagittalAnkleSite", 'pos': "0 0 0"}],
+                                                'inertials': [{'diaginertia': "0.00498533 0.00498533 0.00498533", 'mass': " ".join(map(str,ExoRightSagittalAnkleLink_mass)), 'pos': "-0.043917 -0.056352 -0.038953", 'quat': "0.856905 0.390876 0.326448 -0.0797629"}],
+                                                'joints': [{'axis': "0 1 0", 'name': "RightSagittalAnkleJoint", 'pos': "0 0 0", 'range': "-0.3 0.2"}],
+                                                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightSagittalAnkleLink", 'type': "mesh"}],
                                                 'bodies': [
                                                     {
-                                                        'name': "LeftHenkeAnkleLink",
+                                                        'name': "RightHenkeAnkleLink",
                                                         'pos': "0 0 0",
-                                                        'sites': [
-                                                            {'name': "LeftHenkeAnkleSite", 'pos': "0 0 0"},
-                                                            {'name': "LeftHenkeAnkleFront", 'pos': "0.033 0.1 0"},
-                                                            {'name': "LeftHenkeAnkleBack", 'pos': "-0.033 0.1 0"}
-                                                        ],
-                                                        'inertials': [{'diaginertia': "0.0289377 0.0289377 0.0289377", 'mass': "3.2239", 'pos': "-0.053246 2e-06 -0.11063", 'quat': "0.280854 0.443077 0.216278 0.823424"}],
-                                                        'joints': [{'axis': "0.788011 0 0.615661", 'name': "LeftHenkeAnkleJoint", 'pos': "0 0 0", 'range': "-0.3 0.3"}],
+                                                        'inertials': [{'diaginertia': "0.0289377 0.0289377 0.0289377", 'mass': " ".join(map(str,ExoRightHenkeAnkleLink_mass)), 'pos': "-0.053246 -2e-06 -0.11063", 'quat': "-0.280854 0.443077 -0.216278 0.823424"}],
+                                                        'joints': [{'axis': "0.788011 0 0.615661", 'name': "RightHenkeAnkleJoint", 'pos': "0 0 0", 'range': "-0.3 0.3"}],
                                                         'geoms': [
-                                                            {'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "LeftHenkeAnkleLink", 'quat': "0.945518 0 -0.32557 0", 'type': "mesh"},
-                                                            {'condim': "4", 'friction': "1", 'name': "left_sole", 'pos': "0.06 -3.3e-05 -0.15975", 'quat': "0.707105 0 -0.707108 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.1375", 'type': "box"},
-                                                            {'condim': "4", 'friction': "1", 'name': "left_toe", 'pos': "0.2195 0 -0.1537", 'quat': "0.6018 0 -0.7986 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.022", 'type': "box"},
-                                                            {'condim': "4", 'friction': "1", 'name': "left_heel", 'pos': "-0.0940 0 -0.1566", 'quat': "0.7716 0 -0.6361 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.0165", 'type': "box"}
+                                                            {'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightHenkeAnkleLink", 'quat': "0.945518 0 -0.32557 0", 'type': "mesh"},
+                                                            {'condim': "4", 'friction': "1", 'name': "right_sole", 'pos': "0.06 -3.3e-05 -0.15975", 'quat': "0.707105 0 -0.707108 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.1375", 'type': "box"},
+                                                            {'condim': "4", 'friction': "1", 'name': "right_toe", 'pos': "0.2195 0 -0.1537", 'quat': "0.6018 0 -0.7986 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.022", 'type': "box"},
+                                                            {'condim': "4", 'friction': "1", 'name': "right_heel", 'pos': "-0.0940 0 -0.1566", 'quat': "0.7716 0 -0.6361 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.0165", 'type': "box"}
                                                         ],
                                                         'sites': [
-                                                            {'name': "LeftAnkleFront", 'pos': "0.025 0 -0.1"},
-                                                            {'name': "LeftAnkleBack", 'pos': "-0.04 0 -0.1"},
-                                                            {'name': "left_foot_imu", 'pos': "-0.036966 0.015 -0.13705", 'quat': "-1.6377e-07 -0.94552 -5.639e-08 0.32557", 'size': ".01"},
-                                                            {'group': "2", 'name': "opto1", 'pos': "0.17825 0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
-                                                            {'group': "2", 'name': "opto2", 'pos': "0.17825 -0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
-                                                            {'group': "2", 'name': "opto3", 'pos': "-0.063753 0.02625 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
-                                                            {'group': "2", 'name': "opto4", 'pos': "-0.063753 -0.02625 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"}
+                                                            {'name': "RightHenkeAnkleSite", 'pos': "0 0 0"},
+                                                            {'name': "RightHenkeAnkleFront", 'pos': "0.033 -0.1 0"},
+                                                            {'name': "RightHenkeAnkleBack", 'pos': "-0.033 -0.1 0"},
+                                                            {'name': "RightAnkleFront", 'pos': "0.025 0 -0.1"},
+                                                            {'name': "RightAnkleBack", 'pos': "-0.04 0 -0.1"},
+                                                            {'name': "right_foot_imu", 'pos': "-0.036966 0.015 -0.13705", 'quat': "-1.6377e-07 -0.94552 -5.639e-08 0.32557", 'size': ".01"},
+                                                            {'group': "2", 'name': "opto5", 'pos': "0.17825 0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
+                                                            {'group': "2", 'name': "opto6", 'pos': "0.17825 -0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
+                                                            {'group': "2", 'name': "opto7", 'pos': "-0.063753 0.02625 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
+                                                            {'group': "2", 'name': "opto8", 'pos': "-0.063753 -0.02625 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"}
                                                         ]
                                                     }
                                                 ]
@@ -378,94 +512,13 @@ bodies_data = [
                 ]
             }
         ]
-    },
-    {
-        'name': "RightFrontalHipLink",
-        'pos': "0 -0.089 0",
-        'sites': [{'name': "RightFrontalHipSite", 'pos': "0 0 0"}],
-        'inertials': [{'diaginertia': "0.0365973 0.0349128 0.00740791", 'mass': "3.6752", 'pos': "-0.18696 -0.095567 0.01843", 'quat': "0.292578 0.454629 -0.434128 0.720585"}],
-        'joints': [{'axis': "1 0 0", 'name': "RightFrontalHipJoint", 'pos': "0 0 0", 'range': "-0.3 0.2"}],
-        'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightFrontalHipLink", 'type': "mesh"}],
-        'bodies': [
-            {
-                'name': "RightTransverseHipLink",
-                'pos': "-0.135 -0.169 0",
-                'sites': [{'name': "RightTransverseHipSite", 'pos': "0 0 0"}],
-                'inertials': [{'diaginertia': "0.0259901 0.0259386 0.00622121", 'mass': "4.4176", 'pos': "0.069166 0.008663 0.004212", 'quat': "0.111328 0.697511 0.202883 0.678177"}],
-                'joints': [{'axis': "0 0 1", 'name': "RightTransverseHipJoint", 'pos': "0 0 0", 'range': "-0.3 0.2"}],
-                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightTransverseHipLink", 'type': "mesh"}],
-                'bodies': [
-                    {
-                        'name': "RightSagittalHipLink",
-                        'pos': "0.135 0 0",
-                        'sites': [{'name': "RightSagittalHipSite", 'pos': "0 0 0"}],
-                        'inertials': [{'diaginertia': "0.17014 0.155437 0.0522649", 'mass': "8.9468", 'pos': "0.022786 0.018046 -0.18739", 'quat': "0.852695 0.0468759 -0.0483842 0.518047"}],
-                        'joints': [{'axis': "0 1 0", 'name': "RightSagittalHipJoint", 'pos': "0 0 0", 'range': "-2 0.3"}],
-                        'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightSagittalHipLink", 'type': "mesh"}],
-                        'bodies': [
-                            {
-                                'name': "RightSagittalKneeLink",
-                                'pos': "0 -0.0049114 -0.38",
-                                'sites': [
-                                    {'name': "RightSagittalKneeFront", 'pos': "0.06 0.013 0"},
-                                    {'name': "RightSagittalKneeBack", 'pos': "-0.06 0.013 0"},
-                                    {'name': "RightKneeFront", 'pos': "0.015 0.16 -0.03"},
-                                    {'name': "RightKneeBack", 'pos': "-0.07 0.16 -0.03"},
-                                    {'name': "RightSagittalKneeSite", 'pos': "0 0 0"}
-                                ],
-                                'inertials': [{'diaginertia': "0.292576 0.283039 0.0639544", 'mass': "10.9753", 'pos': "-0.063222 0.1107 -0.20848", 'quat': "0.96457 0.15051 0.183544 0.115166"}],
-                                'joints': [{'axis': "0 1 0", 'name': "RightSagittalKneeJoint", 'pos': "0 0 0", 'range': "0 1.9"}],
-                                'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightSagittalKneeLink", 'type': "mesh"}],
-                                'sites': [
-                                    {'group': "3", 'name': "right_tibia_imu", 'pos': "-0.11573 0.074342 -0.39348", 'quat': "0.70711 -0.70711 0 0", 'size': ".01"}
-                                ],
-                                'bodies': [
-                                    {
-                                        'name': "RightSagittalAnkleLink",
-                                        'pos': "0 0.16942 -0.408",
-                                        'quat': "0.997564 0 0 -0.0697583",
-                                        'sites': [{'name': "RightSagittalAnkleSite", 'pos': "0 0 0"}],
-                                        'inertials': [{'diaginertia': "0.00498533 0.00498533 0.00498533", 'mass': "1.6764", 'pos': "-0.043917 -0.056352 -0.038953", 'quat': "0.856905 0.390876 0.326448 -0.0797629"}],
-                                        'joints': [{'axis': "0 1 0", 'name': "RightSagittalAnkleJoint", 'pos': "0 0 0", 'range': "-0.3 0.2"}],
-                                        'geoms': [{'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightSagittalAnkleLink", 'type': "mesh"}],
-                                        'bodies': [
-                                            {
-                                                'name': "RightHenkeAnkleLink",
-                                                'pos': "0 0 0",
-                                                'sites': [
-                                                    {'name': "RightHenkeAnkleSite", 'pos': "0 0 0"},
-                                                    {'name': "RightHenkeAnkleFront", 'pos': "0.033 -0.1 0"},
-                                                    {'name': "RightHenkeAnkleBack", 'pos': "-0.033 -0.1 0"}
-                                                ],
-                                                'inertials': [{'diaginertia': "0.0289377 0.0289377 0.0289377", 'mass': "3.2239", 'pos': "-0.053246 -2e-06 -0.11063", 'quat': "-0.280854 0.443077 -0.216278 0.823424"}],
-                                                'joints': [{'axis': "0.788011 0 0.615661", 'name': "RightHenkeAnkleJoint", 'pos': "0 0 0", 'range': "-0.3 0.3"}],
-                                                'geoms': [
-                                                    {'conaffinity': "0", 'contype': "0", 'density': "0", 'group': "1", 'mesh': "RightHenkeAnkleLink", 'quat': "0.945518 0 -0.32557 0", 'type': "mesh"},
-                                                    {'condim': "4", 'friction': "1", 'name': "right_sole", 'pos': "0.06 -3.3e-05 -0.15975", 'quat': "0.707105 0 -0.707108 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.1375", 'type': "box"},
-                                                    {'condim': "4", 'friction': "1", 'name': "right_toe", 'pos': "0.2195 0 -0.1537", 'quat': "0.6018 0 -0.7986 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.022", 'type': "box"},
-                                                    {'condim': "4", 'friction': "1", 'name': "right_heel", 'pos': "-0.0940 0 -0.1566", 'quat': "0.7716 0 -0.6361 0", 'rgba': "1 0 0 1", 'size': "0.0049535 0.059645 0.0165", 'type': "box"}
-                                                ],
-                                                'sites': [
-                                                    {'name': "RightAnkleFront", 'pos': "0.025 0 -0.1"},
-                                                    {'name': "RightAnkleBack", 'pos': "-0.04 0 -0.1"},
-                                                    {'name': "right_foot_imu", 'pos': "-0.036966 0.015 -0.13705", 'quat': "-1.6377e-07 -0.94552 -5.639e-08 0.32557", 'size': ".01"},
-                                                    {'group': "2", 'name': "opto5", 'pos': "0.17825 0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
-                                                    {'group': "2", 'name': "opto6", 'pos': "0.17825 -0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
-                                                    {'group': "2", 'name': "opto7", 'pos': "-0.063753 0.02625 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
-                                                    {'group': "2", 'name': "opto8", 'pos': "-0.063753 -0.02625 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"}
-                                                ]
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
     }
-]
+  ]
+
+        
+
+
+
 
 # Add all bodies to the worldbody
 for body in bodies_data:
@@ -509,15 +562,12 @@ ET.SubElement(worldbody_node, 'geom', terrain_geom)
 bodies_data = [
     {
         'name': "pelvis",
-        'pos': "0 0 1",
+        'pos':  " ".join(map(str,Muscletorso_pos)),
         'quat': "0.707107 0.707107 0 0",
         'childclass': "myolegs",
-        'sites': [
-            {'name': "pelvislocation", 'pos': "0 0 0"},
-            {'name': "pelvis", 'class': "myo_leg_marker"}
-        ],
+        
         'inertials': [
-            {'pos': "-0.07 -0.03 0", 'mass': "10.96", 'diaginertia': "0.0622075 0.0532711 0.0299242"}
+            {'pos': "-0.07 -0.03 0", 'mass': " ".join(map(str,Muscletorso_mass)), 'diaginertia': "0.0622075 0.0532711 0.0299242"}
         ],
         'geoms': [
             {'mesh': "r_pelvis", 'name': "r_pelvis", 'type': "mesh"},
@@ -535,6 +585,8 @@ bodies_data = [
             {'name': "IL_at_brim_l_wrap", 'pos': "-0.071 -0.065 -0.0756", 'quat': "0.874257 0.193832 0.0376181 0.443495", 'class': "wrap", 'size': "0.0549", 'type': "sphere"}
         ],
         'sites': [
+            {'name': "pelvislocation", 'pos': "0 0 0"},
+            {'name': "pelvis", 'class': "myo_leg_marker"},
             {'name': "addbrev_r-P1", 'pos': "-0.0191 -0.094 0.0154"},
             {'name': "addlong_r-P1", 'pos': "-0.0076 -0.0889 0.0189"},
             {'name': "addmagDist_r-P1", 'pos': "-0.074 -0.1277 0.0398"},
@@ -615,9 +667,9 @@ bodies_data = [
         'bodies': [
             {
                 'name': "femur_r",
-                'pos': "-0.056276 -0.07849 0.07726",
+                'pos': " ".join(map(str,Musclefemur_r_pos)),
                 'sites': [{'name': "hip_r_location", 'pos': "0 0 0"}, {'name': "hip_r", 'class': "myo_leg_marker"}],
-                'inertials': [{'pos': "0 -0.195 -0.0005", 'quat': "0.708013 -0.7062 0 0", 'mass': "8.4", 'diaginertia': "0.1694 0.1694 0.0245269"}],
+                'inertials': [{'pos': "0 -0.195 -0.0005", 'quat': "0.708013 -0.7062 0 0", 'mass': " ".join(map(str,Musclefemur_r_mass)), 'diaginertia': "0.1694 0.1694 0.0245269"}],
                 'joints': [
                     {'axis': "0 0 1", 'name': "hip_flexion_r", 'pos': "0 0 0", 'range': "-0.523599 2.0944"},
                     {'axis': "1 0 0", 'name': "hip_adduction_r", 'pos': "0 0 0", 'range': "-0.872665 0.523599"},
@@ -636,6 +688,7 @@ bodies_data = [
                     {'name': "PECT_at_femshaft_r_wrap", 'pos': "0.00608573 -0.0845029 0.0304405", 'quat': "0.610649 0.779832 0.0849157 0.108442", 'class': "wrap", 'size': "0.015 0.025"}
                 ],
                 'sites': [
+                    {'name': "hip_r_location", 'pos': "0 0 0"},
                     {'name': "addbrev_r-P2", 'pos': "-0.002 -0.118 0.0249"},
                     {'name': "addlong_r-P2", 'pos': "0.0113 -0.2394 0.0158"},
                     {'name': "addmagDist_r-P2", 'pos': "0.0112 -0.2625 0.0193"},
@@ -691,9 +744,9 @@ bodies_data = [
                 'bodies': [
                     {
                         'name': "tibia_r",
-                        'pos': "-4.6e-07 -0.404425 -0.00126526",
+                        'pos': " ".join(map(str,Muscletibia_r_pos)),
                         'sites': [{'name': "knee_r_location", 'pos': "0 0 0"}, {'name': "knee_r", 'class': "myo_leg_marker"}],
-                        'inertials': [{'pos': "-0.005 -0.175 0.0025", 'quat': "0.70204 -0.711847 0.0203385 0", 'mass': "3.8", 'diaginertia': "0.0771589 0.0771589 0.00690387"}],
+                        'inertials': [{'pos': "-0.005 -0.175 0.0025", 'quat': "0.70204 -0.711847 0.0203385 0", 'mass': " ".join(map(str,Muscletibia_r_mass)), 'diaginertia': "0.0771589 0.0771589 0.00690387"}],
                         'joints': [
                             {'axis': "0.992246 0.123982 -0.00878916", 'name': "knee_angle_r_translation2", 'pos': "0 0 0", 'range': "7.69254e-11 0.006792", 'type': "slide"},
                             {'axis': "-0.124293 0.989762 -0.0701648", 'name': "knee_angle_r_translation1", 'pos': "0 0 0", 'range': "9.53733e-08 0.00159883", 'type': "slide"},
@@ -712,6 +765,7 @@ bodies_data = [
                             {'name': "BF_at_gastroc_r_wrap", 'pos': "-0.058 -0.06 0", 'class': "wrap", 'size': "0.03 0.075"}
                         ],
                         'sites': [
+                            {'name': "knee_r_location", 'pos': "0 0 0"}, {'name': "knee_r", 'class': "myo_leg_marker"},
                             {'name': "bflh_r-P2", 'pos': "-0.0337 -0.035 0.0253"},
                             {'name': "bflh_r-P3", 'pos': "-0.0287 -0.0455 0.0303"},
                             {'name': "bfsh_r-P2", 'pos': "-0.0301 -0.0419 0.0318"},
@@ -766,16 +820,18 @@ bodies_data = [
                         'bodies': [
                             {
                                 'name': "talus_r",
-                                'pos': "-0.01 -0.4 0",
-                                'sites': [{'name': "ankle_r_location", 'pos': "0 0 0"}, {'name': "ankle_r", 'class': "myo_leg_marker"}],
+                                'pos': " ".join(map(str,Muscletalus_r_pos)),
                                 'joints': [{'axis': "-0.105014 -0.174022 0.979126", 'name': "ankle_angle_r", 'pos': "0 0 0", 'range': "-0.698132 0.523599"}],
                                 'geoms': [{'mesh': "r_talus", 'name': "r_talus", 'type': "mesh"}],
-                                'sites': [{'name': "RAJC", 'pos': "0 0 0"}],
+                                'sites': [
+                                    {'name': "RAJC", 'pos': "0 0 0"},
+                                    {'name': "ankle_r_location", 'pos': "0 0 0"}, {'name': "ankle_r", 'class': "myo_leg_marker"}
+                                    ],
                                 'bodies': [
                                     {
                                         'name': "calcn_r",
-                                        'pos': "-0.04877 -0.04195 0.00792",
-                                        'inertials': [{'pos': "0.0821377 0.0108024 -0.000944392", 'quat': "0.502987 0.541341 0.493601 0.458598", 'mass': "1.14", 'diaginertia': "0.00313636 0.00297113 0.000941737"}],
+                                        'pos': " ".join(map(str,Musclecalcn_r_pos)),
+                                        'inertials': [{'pos': "0.0821377 0.0108024 -0.000944392", 'quat': "0.502987 0.541341 0.493601 0.458598", 'mass': " ".join(map(str,Musclecalcn_r_mass)), 'diaginertia': "0.00313636 0.00297113 0.000941737"}],
                                         'joints': [{'axis': "0.78718 0.604747 -0.120949", 'name': "subtalar_angle_r", 'pos': "0 0 0", 'range': "-0.349066 0.349066"}],
                                         'geoms': [{'mesh': "r_foot", 'name': "r_foot", 'type': "mesh"}],
                                         'sites': [
@@ -810,11 +866,11 @@ bodies_data = [
                                         'bodies': [
                                             {
                                                 'name': "toes_r",
-                                                'pos': "0.1788 -0.002 0.00108",
-                                                'sites': [{'name': "toe_r_location", 'pos': "0 0 0"}, {'name': "toe_r", 'class': "myo_leg_marker"}],
+                                                'pos': " ".join(map(str,Muscletoes_r_pos)),
                                                 'joints': [{'axis': "0.580954 0 -0.813936", 'name': "mtp_angle_r", 'pos': "0 0 0", 'range': "-0.523599 0.523599"}],
                                                 'geoms': [{'mesh': "r_bofoot", 'name': "r_bofoot", 'type': "mesh"}],
                                                 'sites': [
+                                                    {'name': "toe_r_location", 'pos': "0 0 0"}, {'name': "toe_r", 'class': "myo_leg_marker"},
                                                     {'name': "r_toes_touch", 'type': "box", 'pos': "0.0275 -.01 0", 'size': ".04 .01 .0675", 'euler': "0 -.7 0", 'class': "myo_leg_touch"},
                                                     {'name': "edl_r-P5", 'pos': "0.0003 0.0047 0.0153"},
                                                     {'name': "edl_r-P6", 'pos': "0.0443 -0.0004 0.025"},
@@ -835,7 +891,7 @@ bodies_data = [
                     },
                     {
                         'name': "patella_r",
-                        'pos': "-0.00809 -0.40796 0",
+                        'pos': " ".join(map(str,Musclepatella_r_pos)),
                         'joints': [
                             {'axis': "0 1 0", 'name': "knee_angle_r_beta_translation2", 'pos': "0 0 0", 'range': "-0.0408267 -0.0108281", 'type': "slide"},
                             {'axis': "1 0 0", 'name': "knee_angle_r_beta_translation1", 'pos': "0 0 0", 'range': "-0.0227731 0.0524192", 'type': "slide"},
@@ -858,9 +914,8 @@ bodies_data = [
             },
             {
                 'name': "femur_l",
-                'pos': "-0.056276 -0.07849 -0.07726",
-                'sites': [{'name': "hip_l_location", 'pos': "0 0 0"}, {'name': "hip_l", 'class': "myo_leg_marker"}],
-                'inertials': [{'pos': "0 -0.195 0.0005", 'quat': "0.7062 -0.708013 0 0", 'mass': "8.4", 'diaginertia': "0.1694 0.1694 0.0245269"}],
+                'pos': " ".join(map(str,Musclefemur_l_pos)),
+                'inertials': [{'pos': "0 -0.195 0.0005", 'quat': "0.7062 -0.708013 0 0", 'mass':" ".join(map(str,Musclefemur_l_mass)), 'diaginertia': "0.1694 0.1694 0.0245269"}],
                 'joints': [
                     {'axis': "0 0 1", 'name': "hip_flexion_l", 'pos': "0 0 0", 'range': "-0.523599 2.0944"},
                     {'axis': "-1 0 0", 'name': "hip_adduction_l", 'pos': "0 0 0", 'range': "-0.872665 0.523599"},
@@ -879,6 +934,8 @@ bodies_data = [
                     {'name': "PECT_at_femshaft_l_wrap", 'pos': "0.00608573 -0.0845029 -0.0304405", 'quat': "0.610649 -0.779832 -0.0849157 0.108442", 'class': "wrap", 'size': "0.015 0.025"}
                 ],
                 'sites': [
+                    {'name': "hip_l_location", 'pos': "0 0 0"}, 
+                    {'name': "hip_l", 'class': "myo_leg_marker"},
                     {'name': "addbrev_l-P2", 'pos': "-0.002 -0.118 -0.0249"},
                     {'name': "addlong_l-P2", 'pos': "0.0113 -0.2394 -0.0158"},
                     {'name': "addmagDist_l-P2", 'pos': "0.0112 -0.2625 -0.0193"},
@@ -934,9 +991,8 @@ bodies_data = [
                 'bodies': [
                     {
                         'name': "tibia_l",
-                        'pos': "-4.6e-07 -0.404425 0.00126526",
-                        'sites': [{'name': "knee_l_location", 'pos': "0 0 0"}, {'name': "knee_l", 'class': "myo_leg_marker"}],
-                        'inertials': [{'pos': "-0.005 -0.175 -0.0025", 'quat': "0.712137 -0.701754 0.0200501 0", 'mass': "3.8", 'diaginertia': "0.0771589 0.0771589 0.00690387"}],
+                        'pos': " ".join(map(str,Muscletibia_l_pos)),
+                        'inertials': [{'pos': "-0.005 -0.175 -0.0025", 'quat': "0.712137 -0.701754 0.0200501 0", 'mass': " ".join(map(str,Muscletibia_l_mass)), 'diaginertia': "0.0771589 0.0771589 0.00690387"}],
                         'joints': [
                             {'axis': "-0.992246 -0.123982 -0.00878916", 'name': "knee_angle_l_translation2", 'pos': "0 0 0", 'range': "-0.006792 -7.69254e-11", 'type': "slide"},
                             {'axis': "-0.124293 0.989762 0.0701648", 'name': "knee_angle_l_translation1", 'pos': "0 0 0", 'range': "9.53733e-08 0.00159883", 'type': "slide"},
@@ -955,6 +1011,8 @@ bodies_data = [
                             {'name': "BF_at_gastroc_l_wrap", 'pos': "-0.058 -0.06 0", 'class': "wrap", 'size': "0.03 0.075"}
                         ],
                         'sites': [
+                            {'name': "knee_l_location", 'pos': "0 0 0"}, 
+                            {'name': "knee_l", 'class': "myo_leg_marker"},
                             {'name': "bflh_l-P2", 'pos': "-0.0337 -0.035 -0.0253"},
                             {'name': "bflh_l-P3", 'pos': "-0.0287 -0.0455 -0.0303"},
                             {'name': "bfsh_l-P2", 'pos': "-0.0301 -0.0419 -0.0318"},
@@ -1009,16 +1067,19 @@ bodies_data = [
                         'bodies': [
                             {
                                 'name': "talus_l",
-                                'pos': "-0.01 -0.4 0",
-                                'sites': [{'name': "ankle_l_location", 'pos': "0 0 0"}, {'name': "ankle_l", 'class': "myo_leg_marker"}],
+                                'pos': " ".join(map(str,Muscletalus_l_pos)),
                                 'joints': [{'axis': "0.105014 0.174022 0.979126", 'name': "ankle_angle_l", 'pos': "0 0 0", 'range': "-0.698132 0.523599"}],
                                 'geoms': [{'mesh': "l_talus", 'name': "l_talus", 'type': "mesh"}],
-                                'sites': [{'name': "LAJC", 'pos': "0 0 0"}],
+                                'sites': [
+                                    {'name': "LAJC", 'pos': "0 0 0"},
+                                    {'name': "ankle_l_location", 'pos': "0 0 0"}, 
+                                    {'name': "ankle_l", 'class': "myo_leg_marker"}
+                                    ],
                                 'bodies': [
                                     {
                                         'name': "calcn_l",
-                                        'pos': "-0.04877 -0.04195 -0.00792",
-                                        'inertials': [{'pos': "0.0821377 0.0108024 0.000944392", 'quat': "0.541341 0.502987 0.458598 0.493601", 'mass': "1.14", 'diaginertia': "0.00313636 0.00297113 0.000941737"}],
+                                        'pos': " ".join(map(str,Musclecalcn_l_pos)),
+                                        'inertials': [{'pos': "0.0821377 0.0108024 0.000944392", 'quat': "0.541341 0.502987 0.458598 0.493601", 'mass': " ".join(map(str,Musclecalcn_l_mass)), 'diaginertia': "0.00313636 0.00297113 0.000941737"}],
                                         'joints': [{'axis': "-0.78718 -0.604747 -0.120949", 'name': "subtalar_angle_l", 'pos': "0 0 0", 'range': "-0.349066 0.349066"}],
                                         'geoms': [{'mesh': "l_foot", 'name': "l_foot", 'type': "mesh"}],
                                         'sites': [
@@ -1053,11 +1114,12 @@ bodies_data = [
                                         'bodies': [
                                             {
                                                 'name': "toes_l",
-                                                'pos': "0.1788 -0.002 -0.00108",
-                                                'sites': [{'name': "toe_l_location", 'pos': "0 0 0"}, {'name': "toe_l", 'class': "myo_leg_marker"}],
+                                                'pos': " ".join(map(str,Muscletoes_l_pos)),
                                                 'joints': [{'axis': "-0.580954 0 -0.813936", 'name': "mtp_angle_l", 'pos': "0 0 0", 'range': "-0.523599 0.523599"}],
                                                 'geoms': [{'mesh': "l_bofoot", 'name': "l_bofoot", 'type': "mesh"}],
                                                 'sites': [
+                                                    {'name': "toe_l_location", 'pos': "0 0 0"}, 
+                                                    {'name': "toe_l", 'class': "myo_leg_marker"},
                                                     {'name': "l_toes_touch", 'type': "box", 'pos': "0.0275 -.01 -.000", 'size': ".04 .01 .0675", 'euler': "0 .7 0", 'class': "myo_leg_touch"},
                                                     {'name': "edl_l-P5", 'pos': "0.0003 0.0047 -0.0153"},
                                                     {'name': "edl_l-P6", 'pos': "0.0443 -0.0004 -0.025"},
@@ -1078,7 +1140,7 @@ bodies_data = [
                     },
                     {
                         'name': "patella_l",
-                        'pos': "-0.00809 -0.40796 0",
+                        'pos': " ".join(map(str,Musclepatella_l_pos)),
                         'joints': [
                             {'axis': "0 1 0", 'name': "knee_angle_l_beta_translation2", 'pos': "0 0 0", 'range': "-0.0408267 -0.0108281", 'type': "slide"},
                             {'axis': "1 0 0", 'name': "knee_angle_l_beta_translation1", 'pos': "0 0 0", 'range': "-0.0227731 0.0524192", 'type': "slide"},
