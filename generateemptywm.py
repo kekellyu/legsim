@@ -90,31 +90,33 @@ Exotorso_pos=[0,0,1]
 # ExoLeftSagittalHipLink_pos=[0.135,0,0]
 # ExoLeftSagittalKneeLink_pos=[0,0.0049114,-0.38]
 # ExoLeftSagittalAnkleLink_pos=[0,-0.16942,-0.408]
+
 # ExoRightFrontalHip_pos=[0,-0.089,0]
 # ExoRightTransverseHipLink_pos=[-0.135,-0.169,0]
 # ExoRightSagittalHipLink_pos=[0.135,0,0]
 # ExoRightSagittalKneeLink_pos=[0,-0.0049114,-0.38]
 # ExoRightSagittalAnkleLink_pos=[0,0.16942,-0.408]
 
+
 #Muscle Positions
 # Y is the height
 Muscletorso_pos=[0,0,1]
 
-Musclefemur_r_pos=[-0.056276*a/0.135,-0.07849*(b+1),0.07726*(c+1)]
-Muscletibia_r_pos=[-4.6e-07*(d+1),-0.404425*e/0.0049114,-0.00126526*f/(-0.38)]
-Muscletalus_r_pos=[-0.01*(g+1),-0.4*h/(-0.16942),0]
+Musclefemur_l_pos=[-0.056276*a/0.135,-0.07849*(b+1),-0.07726*(c+1)]
+Muscletibia_l_pos=[-4.6e-07*(d+1),-0.404425*e/0.0049114,0.00126526*f/(-0.38)]
+Muscletalus_l_pos=[-0.01*(g+1),-0.4*h/(-0.16942),0]
 
-Musclecalcn_r_pos=[-0.04877,-0.04195,0.00792]
-Muscletoes_r_pos=[0.1788,-0.002,0.00108]
-Musclepatella_r_pos=[-0.00809,-0.40796,0]
+Musclecalcn_l_pos=[-0.04877*(g+1),-0.04195*h/(-0.16942),-0.00792*i/(-0.408)]
+Muscletoes_l_pos=[0.1788*(g+1),-0.002*h/(-0.16942),-0.00108*i/(-0.408)]
+Musclepatella_l_pos=[-0.00809*(d+1),-0.40796*e/0.0049114,0]
 
-Musclefemur_l_pos=[-0.056276*j/0.135,-0.07849*(k+1),-0.07726*(l+1)]
-Muscletibia_l_pos=[-4.6e-07*(m+1),-0.404425*n/(-0.0049114),0.00126526*o/(-0.38)]
-Muscletalus_l_pos=[-0.01*(p+1),-0.4*q/0.16942,0]
+Musclefemur_r_pos=[-0.056276*j/(0.135),-0.07849*(k+1),0.07726*(l+1)]
+Muscletibia_r_pos=[-4.6e-07*(m+1),-0.404425*n/(-0.0049114),-0.00126526*o/(-0.38)]
+Muscletalus_r_pos=[-0.01*(p+1),-0.4*q/(0.16942),0]
 
-Musclecalcn_l_pos=[-0.04877,-0.04195,-0.00792]
-Muscletoes_l_pos=[0.1788,-0.002,-0.00108]
-Musclepatella_l_pos=[-0.00809,-0.40796,0]
+Musclecalcn_r_pos=[-0.04877*(p+1),-0.04195*q/(0.16942),0.00792*r/(-0.408)]
+Muscletoes_r_pos=[0.1788*(p+1),-0.002*q/(0.16942),0.00108*r/(-0.408)]
+Musclepatella_r_pos=[-0.00809*(m+1),-0.40796*n/(-0.0049114),0]
 
 #Masses
 
