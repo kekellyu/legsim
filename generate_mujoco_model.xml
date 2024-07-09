@@ -114,8 +114,8 @@
                   <site name="LeftHenkeAnkleSite" pos="0 0 0"/>
                   <site name="LeftHenkeAnkleFront" pos="0.033 0.1 0"/>
                   <site name="LeftHenkeAnkleBack" pos="-0.033 0.1 0"/>
-                  <site name="LeftAnkleFront" pos="0.025 0 -0.1"/>
-                  <site name="LeftAnkleBack" pos="-0.04 0 -0.1"/>
+                  <site name="LeftAnkleFront" pos="0.015 0 -0.1"/>
+                  <site name="LeftAnkleBack" pos="-0.05 0 -0.1"/>
                   <site name="left_foot_imu" pos="-0.036966 0.015 -0.13705" quat="-1.6377e-07 -0.94552 -5.639e-08 0.32557" size=".01"/>
                   <site group="2" name="opto1" pos="0.17825 0.0285 -0.1598" quat="1 0 0 1" size="0.05"/>
                   <site group="2" name="opto2" pos="0.17825 -0.0285 -0.1598" quat="1 0 0 1" size="0.05"/>
@@ -167,8 +167,8 @@
                   <site name="RightHenkeAnkleSite" pos="0 0 0"/>
                   <site name="RightHenkeAnkleFront" pos="0.033 -0.1 0"/>
                   <site name="RightHenkeAnkleBack" pos="-0.033 -0.1 0"/>
-                  <site name="RightAnkleFront" pos="0.025 0 -0.1"/>
-                  <site name="RightAnkleBack" pos="-0.04 0 -0.1"/>
+                  <site name="RightAnkleFront" pos="0.015 0 -0.1"/>
+                  <site name="RightAnkleBack" pos="-0.05 0 -0.1"/>
                   <site name="right_foot_imu" pos="-0.036966 0.015 -0.13705" quat="-1.6377e-07 -0.94552 -5.639e-08 0.32557" size=".01"/>
                   <site group="2" name="opto5" pos="0.17825 0.0285 -0.1598" quat="1 0 0 1" size="0.05"/>
                   <site group="2" name="opto6" pos="0.17825 -0.0285 -0.1598" quat="1 0 0 1" size="0.05"/>
@@ -711,7 +711,7 @@
       <site site="RightKneeBack"/>
       <site site="RightSagittalKneeBack"/>
     </spatial>
-    <spatial name="rightankleconnect" limited="true" range="0 0.1" rgba="0 0 0 0.5" width=".005">
+    <spatial name="rightankleconnect" limited="true" range="0 0.2" rgba="0 0 0 0.5" width=".005">
       <site site="RightHenkeAnkleFront"/>
       <site site="RightAnkleFront"/>
       <site site="ankle_r_location"/>

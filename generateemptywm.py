@@ -97,9 +97,7 @@ Exotorso_pos=[0,0,1]
 # ExoRightSagittalKneeLink_pos=[0,-0.0049114,-0.38]
 # ExoRightSagittalAnkleLink_pos=[0,0.16942,-0.408]
 
-
 #Muscle Positions
-# Y is the height
 Muscletorso_pos=[0,0,1]
 
 Musclefemur_l_pos=[-0.056276*a/0.135,-0.07849*(b+1),-0.07726*(c+1)]
@@ -511,8 +509,8 @@ bodies_data = [
                                                                 {'name': "LeftHenkeAnkleSite", 'pos': "0 0 0"},
                                                                 {'name': "LeftHenkeAnkleFront", 'pos': "0.033 0.1 0"},
                                                                 {'name': "LeftHenkeAnkleBack", 'pos': "-0.033 0.1 0"},
-                                                                {'name': "LeftAnkleFront", 'pos': "0.025 0 -0.1"},
-                                                                {'name': "LeftAnkleBack", 'pos': "-0.04 0 -0.1"},
+                                                                {'name': "LeftAnkleFront", 'pos': "0.015 0 -0.1"},
+                                                                {'name': "LeftAnkleBack", 'pos': "-0.05 0 -0.1"},
                                                                 {'name': "left_foot_imu", 'pos': "-0.036966 0.015 -0.13705", 'quat': "-1.6377e-07 -0.94552 -5.639e-08 0.32557", 'size': ".01"},
                                                                 {'group': "2", 'name': "opto1", 'pos': "0.17825 0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
                                                                 {'group': "2", 'name': "opto2", 'pos': "0.17825 -0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
@@ -593,8 +591,8 @@ bodies_data = [
                                                             {'name': "RightHenkeAnkleSite", 'pos': "0 0 0"},
                                                             {'name': "RightHenkeAnkleFront", 'pos': "0.033 -0.1 0"},
                                                             {'name': "RightHenkeAnkleBack", 'pos': "-0.033 -0.1 0"},
-                                                            {'name': "RightAnkleFront", 'pos': "0.025 0 -0.1"},
-                                                            {'name': "RightAnkleBack", 'pos': "-0.04 0 -0.1"},
+                                                            {'name': "RightAnkleFront", 'pos': "0.015 0 -0.1"},
+                                                            {'name': "RightAnkleBack", 'pos': "-0.05 0 -0.1"},
                                                             {'name': "right_foot_imu", 'pos': "-0.036966 0.015 -0.13705", 'quat': "-1.6377e-07 -0.94552 -5.639e-08 0.32557", 'size': ".01"},
                                                             {'group': "2", 'name': "opto5", 'pos': "0.17825 0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
                                                             {'group': "2", 'name': "opto6", 'pos': "0.17825 -0.0285 -0.1598", 'quat': "1 0 0 1", 'size': "0.05"},
@@ -1309,7 +1307,7 @@ tendon_rightknee_site5.set('site','RightSagittalKneeBack')
 tendon_rightankle_node = ET.SubElement(tendon_node, 'spatial')
 tendon_rightankle_node.set('name', 'rightankleconnect')
 tendon_rightankle_node.set('limited', 'true')
-tendon_rightankle_node.set('range', '0 0.1')
+tendon_rightankle_node.set('range', '0 0.2')
 tendon_rightankle_node.set('rgba', '0 0 0 0.5')
 tendon_rightankle_node.set('width', '.005')
 sites_rightankle = ['RightHenkeAnkleFront', 'RightAnkleFront', 'ankle_r_location', 'RightAnkleBack', 'RightHenkeAnkleBack']
