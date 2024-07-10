@@ -22,7 +22,7 @@ def get_mass(root, body_name):
             return float(mass) if mass is not None else None
     return None
 
-#Get Data from xml
+#Get Data from new Exoskeleton xml
 
 file_path='emptywmuscle.xml'
 tree, root = parse_xml(file_path)
@@ -81,6 +81,120 @@ m11 = ExoRightSagittalKneeLink_mass
 m12 = ExoRightSagittalAnkleLink_mass
 m13 = ExoRightHenkeAnkleLink_mass
 
+#Data from basic Exoskeleton xml
+file_path='Amy_Li_emptyExo.xml'
+tree, root = parse_xml(file_path)
+
+EmptyExoLeftSagittalHipLink_pos = get_position(root, 'LeftSagittalHipLink')
+EmptyExoLeftSagittalKneeLink_pos = get_position(root, 'LeftSagittalKneeLink')
+EmptyExoLeftSagittalAnkleLink_pos = get_position(root,'LeftSagittalAnkleLink')
+EmptyExoLeftFrontalHip_pos= get_position(root, 'LeftFrontalHipLink')
+EmptyExoLeftTransverseHipLink_pos= get_position(root, 'LeftTransverseHipLink')
+
+EmptyExoRightSagittalHipLink_pos = get_position(root, 'RightSagittalHipLink')
+EmptyExoRightSagittalKneeLink_pos = get_position(root, 'RightSagittalKneeLink')
+EmptyExoRightSagittalAnkleLink_pos = get_position(root,'RightSagittalAnkleLink')
+EmptyExoRightFrontalHip_pos= get_position(root, 'RightFrontalHipLink')
+EmptyExoRightTransverseHipLink_pos= get_position(root, 'RightTransverseHipLink')
+
+EmptyExotorso_mass= get_mass(root, 'torso')
+EmptyExoLeftFrontalHip_mass= get_mass(root, 'LeftFrontalHipLink')
+EmptyExoLeftTransverseHipLink_mass= get_mass(root, 'LeftTransverseHipLink')
+EmptyExoLeftSagittalHipLink_mass= get_mass(root, 'LeftSagittalHipLink')
+EmptyExoLeftSagittalKneeLink_mass= get_mass(root, 'LeftSagittalKneeLink')
+EmptyExoLeftSagittalAnkleLink_mass= get_mass(root, 'LeftSagittalAnkleLink')
+EmptyExoLeftHenkeAnkleLink_mass= get_mass(root, 'LeftHenkeAnkleLink')
+EmptyExoRightFrontalHip_mass= get_mass(root, 'RightFrontalHipLink')
+EmptyExoRightTransverseHipLink_mass= get_mass(root, 'RightTransverseHipLink')
+EmptyExoRightSagittalHipLink_mass= get_mass(root, 'RightSagittalHipLink')
+EmptyExoRightSagittalKneeLink_mass= get_mass(root, 'RightSagittalKneeLink')
+EmptyExoRightSagittalAnkleLink_mass= get_mass(root, 'RightSagittalAnkleLink')
+EmptyExoRightHenkeAnkleLink_mass= get_mass(root, 'RightHenkeAnkleLink')
+
+#Change name
+
+ea, eb, ec = EmptyExoLeftSagittalHipLink_pos
+ed, ee, ef = EmptyExoLeftSagittalKneeLink_pos
+eg, eh, ei = EmptyExoLeftSagittalAnkleLink_pos
+eaa, ebb, ecc = EmptyExoLeftFrontalHip_pos
+eaaa, ebbb, eccc = EmptyExoLeftTransverseHipLink_pos
+
+ej, ek, el = EmptyExoRightSagittalHipLink_pos
+em, en, eo = EmptyExoRightSagittalKneeLink_pos
+ep, eq, er = EmptyExoRightSagittalAnkleLink_pos
+ejj, ekk, ell = EmptyExoRightFrontalHip_pos
+ejjj, ekkk, elll = EmptyExoRightTransverseHipLink_pos
+
+em1 = EmptyExotorso_mass
+em2 = EmptyExoLeftFrontalHip_mass
+em3 = EmptyExoLeftTransverseHipLink_mass
+em4 = EmptyExoLeftSagittalHipLink_mass
+em5 = EmptyExoLeftSagittalKneeLink_mass
+em6 = EmptyExoLeftSagittalAnkleLink_mass
+em7 = EmptyExoLeftHenkeAnkleLink_mass
+em8 = EmptyExoRightFrontalHip_mass
+em9 = EmptyExoRightTransverseHipLink_mass
+em10 = EmptyExoRightSagittalHipLink_mass
+em11 = EmptyExoRightSagittalKneeLink_mass
+em12 = EmptyExoRightSagittalAnkleLink_mass
+em13 = EmptyExoRightHenkeAnkleLink_mass
+
+#Data from basic Muscle xml
+file_path='myolegs_chain.xml'
+tree, root = parse_xml(file_path)
+
+#Muscle Positions
+Muscletorso_pos = get_position(root, 'pelvis')
+Musclefemur_l_pos = get_position(root, 'femur_l')
+Muscletibia_l_pos = get_position(root, 'tibia_l')
+Muscletalus_l_pos = get_position(root, 'talus_l')
+Musclecalcn_l_pos = get_position(root, 'calcn_l')
+Muscletoes_l_pos = get_position(root, 'toes_l')
+Musclepatella_l_pos = get_position(root, 'patella_l')
+
+Musclefemur_r_pos = get_position(root, 'femur_r')
+Muscletibia_r_pos = get_position(root, 'tibia_r')
+Muscletalus_r_pos = get_position(root, 'talus_r')
+Musclecalcn_r_pos = get_position(root, 'calcn_r')
+Muscletoes_r_pos = get_position(root, 'toes_r')
+Musclepatella_r_pos = get_position(root, 'patella_r')
+
+#Muscle mass
+Muscletorso_mass = get_mass(root, 'pelvis')
+Musclefemur_r_mass = get_mass(root, 'femur_r')
+Muscletibia_r_mass = get_mass(root, 'tibia_r')
+Musclecalcn_r_mass = get_mass(root, 'calcn_r')
+Musclefemur_l_mass = get_mass(root, 'femur_l')
+Muscletibia_l_mass = get_mass(root, 'tibia_l')
+Musclecalcn_l_mass = get_mass(root, 'calcn_l')
+
+
+ma, mb, mc = Muscletorso_pos
+
+mflx, mfly, mflz = Musclefemur_l_pos
+milx, mily, milz = Muscletibia_l_pos
+malx, maly, malz = Muscletalus_l_pos
+mclx, mcly, mclz =Musclecalcn_l_pos
+mtlx, mtly, mtlz =Muscletoes_l_pos
+mplx, mply, mplz =Musclepatella_l_pos
+
+mfrx, mfry, mfrz =Musclefemur_r_pos
+mirx, miry, mirz =Muscletibia_r_pos
+marx, mary, marz =Muscletalus_r_pos
+mcrx, mcry, mcrz =Musclecalcn_r_pos
+mtrx, mtry, mtrz =Muscletoes_r_pos
+mprx, mpry, mprz =Musclepatella_r_pos
+
+
+#Change name
+mm1 = Muscletorso_mass
+mm2 = Musclefemur_r_mass
+mm3 = Muscletibia_r_mass
+mm4 = Musclecalcn_r_mass
+mm5 = Musclefemur_l_mass
+mm6 = Muscletibia_l_mass
+mm7 = Musclecalcn_l_mass
+
 #Positions
 
 #Exoskeleton Link Positions
@@ -97,24 +211,28 @@ Exotorso_pos=[0,0,1]
 # ExoRightSagittalKneeLink_pos=[0,-0.0049114,-0.38]
 # ExoRightSagittalAnkleLink_pos=[0,0.16942,-0.408]
 
-#Muscle Positions
+#Muscle Positions Calculation
 Muscletorso_pos=[0,0,1]
 
-Musclefemur_l_pos=[-0.056276*a/0.135,-0.07849*(b+1),-0.07726*(c+1)]
-Muscletibia_l_pos=[-4.6e-07*(d+1),-0.404425*e/0.0049114,0.00126526*f/(-0.38)]
-Muscletalus_l_pos=[-0.01*(g+1),-0.4*h/(-0.16942),0]
+Musclefemur_l_pos=[mflx*a/ea,mfly*(b+1),mflz*(c+1)]
+Muscletibia_l_pos=[milx*(d+1),mily*e/ee,milz*f/ef]
+Muscletalus_l_pos=[malx*(g+1),maly*h/eh,0]
 
-Musclecalcn_l_pos=[-0.04877*(g+1),-0.04195*h/(-0.16942),-0.00792*i/(-0.408)]
-Muscletoes_l_pos=[0.1788*(g+1),-0.002*h/(-0.16942),-0.00108*i/(-0.408)]
-Musclepatella_l_pos=[-0.00809*(d+1),-0.40796*e/0.0049114,0]
 
-Musclefemur_r_pos=[-0.056276*j/(0.135),-0.07849*(k+1),0.07726*(l+1)]
-Muscletibia_r_pos=[-4.6e-07*(m+1),-0.404425*n/(-0.0049114),-0.00126526*o/(-0.38)]
-Muscletalus_r_pos=[-0.01*(p+1),-0.4*q/(0.16942),0]
+Musclecalcn_l_pos=[mclx*(g+1),mcly*h/eh,mclz*i/ei]
+Muscletoes_l_pos=[mtlx*(g+1),mtly*h/eh,mtlz*i/ei]
+Musclepatella_l_pos=[mplx*(d+1),mply*e/ee,0]
 
-Musclecalcn_r_pos=[-0.04877*(p+1),-0.04195*q/(0.16942),0.00792*r/(-0.408)]
-Muscletoes_r_pos=[0.1788*(p+1),-0.002*q/(0.16942),0.00108*r/(-0.408)]
-Musclepatella_r_pos=[-0.00809*(m+1),-0.40796*n/(-0.0049114),0]
+
+Musclefemur_r_pos=[mfrx*j/ej,mfry*(k+1),mfrz*(l+1)]
+Muscletibia_r_pos=[mirx*(m+1),miry*n/en,mirz*o/eo]
+Muscletalus_r_pos=[marx*(p+1),mary*q/eq,0]
+
+
+Musclecalcn_r_pos=[mcrx*(p+1),mcry*q/eq,mcrz*r/er]
+Muscletoes_r_pos=[mtrx*(p+1),mtry*q/eq,mtrz*r/er]
+Musclepatella_r_pos=[mprx*(m+1),mpry*n/en,0]
+
 
 #Masses
 
@@ -147,14 +265,14 @@ ExoRightSagittalKneeLink_mass=[m11]
 ExoRightSagittalAnkleLink_mass=[m12]
 ExoRightHenkeAnkleLink_mass=[m13]
 
-#Muscle Mass
-Muscletorso_mass=[10.96*m1/16.4638]
-Musclefemur_r_mass=[8.4*(m2/3.6752+m3/4.4176+m4/8.9468)]
-Muscletibia_r_mass=[3.8*m5/10.9753]
-Musclecalcn_r_mass=[1.14*(m6/1.6764+m7/3.2239)]
-Musclefemur_l_mass=[8.4*(m8/3.6752+m9/4.4176+m10/8.9468)]
-Muscletibia_l_mass=[3.8*m11/10.9753]
-Musclecalcn_l_mass=[1.14*(m12/1.6764+m13/3.2239)]
+#Muscle Mass Calculation
+Muscletorso_mass=[mm1*m1/em1]
+Musclefemur_r_mass=[mm2*(m2/em2+m3/em3+m4/em4)]
+Muscletibia_r_mass=[mm3*m5/em5]
+Musclecalcn_r_mass=[mm4*(m6/em6+m7/em7)]
+Musclefemur_l_mass=[mm5*(m8/em8+m9/em9+m10/em10)]
+Muscletibia_l_mass=[mm6*m11/em11]
+Musclecalcn_l_mass=[mm7*(m12/em12+m13/em13)]
 
 # tree = ET.parse('emptywmuscle.xml')
 root = ET.Element("mujoco")
