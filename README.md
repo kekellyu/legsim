@@ -23,3 +23,9 @@
 (9) **exowmuscle.xml:** xml file for exoskeleton model with muscle model, connecting from the muscle model to exoskeleton model, with human body, unlimited tendon length 
 
 (10) **testversion.py:** draft file for python script
+
+(11) **MJDATA.TXT:** data from mujoco model
+
+(12) **JOINTAngle.py:** calculate the joint angle from the TXT file and calculate the angle difference between the selected joints in muscle model and exoskeleton mode
+ 
+(13) **JointAngleRMSE.py:** calculate the joint angle from the TXT file and calculate the RMSE between the selected joints pairs in muscle model and exoskeleton mode
