@@ -18,19 +18,28 @@ model = mujoco.MjModel.from_xml_path("generate_mujoco_model.xml")
 data = mujoco.MjData(model)
 
 num_steps = 1000
-trajectory_data = []
+qpos_trajectory_data = []
+qvel_trajectory_data = []
 
-def update_and_store_qpos(model, data, trajectory_data):
+def update_and_store(model, data, qpos_trajectory_data, qvel_trajectory_data):
     mujoco.mj_step(model, data)
     qpos = data.qpos.copy()
-    trajectory_data.append(qpos)
+    qvel = data.qvel.copy()
+
+    qpos_trajectory_data.append(qpos)
+    qvel_trajectory_data.append(qvel)
+
 
 for i in range(num_steps):
-    update_and_store_qpos(model, data, trajectory_data)
+    update_and_store(model, data, qpos_trajectory_data, qvel_trajectory_data)
 
-trajectory_data = np.array(trajectory_data)
+qpos_trajectory_data = np.array(qpos_trajectory_data)
+qvel_trajectory_data = np.array(qvel_trajectory_data)
 
-header = ",".join(joint_names)
-np.savetxt("qpos.csv", trajectory_data, delimiter=",", header=header, comments='')
+qpos_header = ",".join(joint_names)
+qvel_header = ",".join(joint_names)
 
-print("data saved to qpos.csv.")
+np.savetxt("qpos.csv", qpos_trajectory_data, delimiter=",", header=qpos_header, comments='')
+np.savetxt("qvel.csv", qvel_trajectory_data, delimiter=",", header=qvel_header, comments='')
+
+print("data saved to csv.")
