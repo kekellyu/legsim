@@ -1,5 +1,7 @@
-import math
+import mujoco
+import numpy as np
 
+# Define the joint names
 joint_names = [
     "LeftFrontalHipJoint", "LeftTransverseHipJoint", "LeftSagittalHipJoint", "LeftSagittalKneeJoint", "LeftSagittalAnkleJoint",
     "LeftHenkeAnkleJoint", "RightFrontalHipJoint", "RightTransverseHipJoint", "RightSagittalHipJoint", "RightSagittalKneeJoint",
@@ -12,34 +14,23 @@ joint_names = [
     "knee_angle_l_beta_rotation1"
 ]
 
-# Convert radians to degrees
-def rad_to_deg(radians):
-    return radians * 180 / math.pi
+model = mujoco.MjModel.from_xml_path("generate_mujoco_model.xml")
+data = mujoco.MjData(model)
 
-# Read the file and process QPOS data
-qpos_data = []
-qpos_section = False
+num_steps = 1000
+trajectory_data = []
 
-with open('MJDATA.TXT', 'r') as file:
-    for line in file:
-        if "QPOS" in line:
-            qpos_section = True
-            continue
-        if qpos_section:
-            if line.strip() == "":
-                break
-            qpos_data.append(float(line.strip()))
+def update_and_store_qpos(model, data, trajectory_data):
+    mujoco.mj_step(model, data)
+    qpos = data.qpos.copy()
+    trajectory_data.append(qpos)
 
-# Assign data to joints and convert to degrees
-joint_angles = {}
-for i, value in enumerate(qpos_data):
-    joint_angles[joint_names[i]] = rad_to_deg(value)
+for i in range(num_steps):
+    update_and_store_qpos(model, data, trajectory_data)
 
-for joint, angle in joint_angles.items():
-    print(f"{joint}: {angle:.2f} degrees")
+trajectory_data = np.array(trajectory_data)
 
-RightHenkeAnkleJoint_angle = joint_angles["RightHenkeAnkleJoint"]
-ankle_angle_r_angle = joint_angles["ankle_angle_r"]
-angle_difference = abs(RightHenkeAnkleJoint_angle - ankle_angle_r_angle)
+header = ",".join(joint_names)
+np.savetxt("qpos.csv", trajectory_data, delimiter=",", header=header, comments='')
 
-print(f"\nDifference between ankle: {angle_difference:.2f} degrees")
+print("data saved to qpos.csv.")
