@@ -1,21 +1,20 @@
-# 🦿 Human–Exoskeleton Gait Synchronization
+# 🦿 Human–Exoskeleton Gait Model Integration
 
-A simulation framework that integrates a musculoskeletal human model (MyoLeg) with an 18-DOF wearable exoskeleton in MuJoCo for synchronized gait coordination. This system supports personalized gait analysis and exoskeleton design through reinforcement learning, tendon coupling, and modular control.
-
----
-
-## 🧠 Overview
-
-This project enables personalized human–robot interaction simulation by:
-- Scaling the musculoskeletal model to match anthropometric parameters
-- Coupling human and exoskeleton models via tendons
-- Simulating double-pendulum gait dynamics
-- Using reinforcement learning (DEPRL) and predictive control (DDPC)
-- Supporting virtual prototyping for rehabilitation exoskeletons
+This repository provides the model integration of a musculoskeletal human (MyoLeg) and an 18-DOF exoskeleton in the MuJoCo simulation environment. This framework forms the structural foundation for human–robot gait synchronization, enabling personalized exoskeleton simulation through tendon-based coupling and parameter scaling.
 
 ---
 
-## 📁 File Descriptions
+## 🧠 What It Does
+
+- Combines MyoSuite's musculoskeletal human model (`myoleg`) with a custom exoskeleton model
+- Binds anatomical joint sites using tendons to enable interactive, coordinated movement
+- Allows parametric scaling based on human anthropometric data
+- Generates multiple model configurations
+- Outputs XML models for use in control training (see [`legcontrol`](https://github.com/kekellyu/legcontrol))
+
+---
+
+## 📁 File/Folder Descriptions
 
 | File/Folder | Description |
 |-------------|-------------|
